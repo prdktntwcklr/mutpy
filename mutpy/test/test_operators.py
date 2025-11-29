@@ -1,8 +1,10 @@
 import ast
-import unittest
+import pytest
 import sys
+import unittest
 
 from mutpy import operators, codegen, coverage, utils
+from mutpy.operators.base import MutationResign
 
 EOL = '\n'
 INDENT = ' ' * 4
@@ -836,9 +838,6 @@ class ReverseIterationLoopTest(OperatorTestCase):
             ['for x in reversed(y):' + EOL + INDENT + PASS],
         )
 
-import pytest
-from mutpy.operators.base import MutationResign
-
 def test_constant_replacement_mutate_num():
     node = ast.Num(n=5)
     result = operators.ConstantReplacement().mutate_Num(node)
@@ -859,14 +858,17 @@ def test_constant_replacement_mutate_constant_num_bool():
     with pytest.raises(MutationResign):
         _ = operators.ConstantReplacement().mutate_Constant_num(node)
 
-def test_constant_replacement_mutate_str_should_raise_if_docstring():
-    target_ast = utils.create_ast("""
+def return_ast_with_string(string: str):
+    return utils.create_ast(f"""
 class MyClass:
     \"\"\"This is a class docstring.\"\"\"
     def my_function():
-        \"\"\"This is a function docstring.\"\"\"
+        {string}
         pass
 """)
+
+def test_constant_replacement_mutate_str_should_raise_if_docstring():
+    target_ast = return_ast_with_string("\"\"\"This is a function docstring.\"\"\"")
     class_node = target_ast.body[0]
     function_node = class_node.body[1]
     function_docstring = function_node.body[0].value
@@ -875,13 +877,7 @@ class MyClass:
         _ = operators.ConstantReplacement().mutate_Str(function_docstring)
 
 def test_constant_replacement_mutate_str_should_return_mutpy():
-    target_ast = utils.create_ast("""
-class MyClass:
-    \"\"\"This is a class docstring.\"\"\"
-    def my_function():
-        some_string = "hello world"
-        pass
-""")
+    target_ast = return_ast_with_string("some_string = \"hello world\"")
     class_node = target_ast.body[0]
     function_node = class_node.body[1]
     function_docstring = function_node.body[0].value
@@ -890,13 +886,7 @@ class MyClass:
     assert result.s == "mutpy"
 
 def test_constant_replacement_mutate_str_should_return_python():
-    target_ast = utils.create_ast("""
-class MyClass:
-    \"\"\"This is a class docstring.\"\"\"
-    def my_function():
-        some_string = "mutpy"
-        pass
-""")
+    target_ast = return_ast_with_string("some_string = \"mutpy\"")
     class_node = target_ast.body[0]
     function_node = class_node.body[1]
     function_docstring = function_node.body[0].value
@@ -905,13 +895,7 @@ class MyClass:
     assert result.s == "python"
 
 def test_constant_replacement_mutate_str_empty_should_raise_if_docstring():
-    target_ast = utils.create_ast("""
-class MyClass:
-    \"\"\"This is a class docstring.\"\"\"
-    def my_function():
-        \"\"\"This is a function docstring.\"\"\"
-        pass
-""")
+    target_ast = return_ast_with_string("\"\"\"This is a function docstring.\"\"\"")
     class_node = target_ast.body[0]
     function_node = class_node.body[1]
     function_docstring = function_node.body[0].value
@@ -920,13 +904,7 @@ class MyClass:
         _ = operators.ConstantReplacement().mutate_Str_empty(function_docstring)
 
 def test_constant_replacement_mutate_str_empty_should_raise_if_empty_string():
-    target_ast = utils.create_ast("""
-class MyClass:
-    \"\"\"This is a class docstring.\"\"\"
-    def my_function():
-        empty_string = ""
-        pass
-""")
+    target_ast = return_ast_with_string("empty_string = \"\"")
     class_node = target_ast.body[0]
     function_node = class_node.body[1]
     function_docstring = function_node.body[0].value
@@ -935,13 +913,7 @@ class MyClass:
         _ = operators.ConstantReplacement().mutate_Str_empty(function_docstring)
 
 def test_constant_replacement_mutate_str_empty_should_return_empty():
-    target_ast = utils.create_ast("""
-class MyClass:
-    \"\"\"This is a class docstring.\"\"\"
-    def my_function():
-        some_string = "mutpy"
-        pass
-""")
+    target_ast = return_ast_with_string("some_string = \"mutpy\"")
     class_node = target_ast.body[0]
     function_node = class_node.body[1]
     function_docstring = function_node.body[0].value
@@ -951,13 +923,7 @@ class MyClass:
 
 @pytest.mark.skipif(sys.version_info < (3, 8), reason="Requires Python 3.8+")
 def test_constant_replacement_mutate_constant_str_should_raise_if_docstring():
-    target_ast = utils.create_ast("""
-class MyClass:
-    \"\"\"This is a class docstring.\"\"\"
-    def my_function():
-        \"\"\"This is a function docstring.\"\"\"
-        pass
-""")
+    target_ast = return_ast_with_string("\"\"\"This is a function docstring.\"\"\"")
     class_node = target_ast.body[0]
     function_node = class_node.body[1]
     function_docstring = function_node.body[0].value
@@ -968,13 +934,7 @@ class MyClass:
 
 @pytest.mark.skipif(sys.version_info < (3, 8), reason="Requires Python 3.8+")
 def test_constant_replacement_mutate_constant_str_should_return_mutpy():
-    target_ast = utils.create_ast("""
-class MyClass:
-    \"\"\"This is a class docstring.\"\"\"
-    def my_function():
-        some_string = "hello world"
-        pass
-""")
+    target_ast = return_ast_with_string("some_string = \"hello world\"")
     class_node = target_ast.body[0]
     function_node = class_node.body[1]
     function_docstring = function_node.body[0].value
@@ -984,13 +944,7 @@ class MyClass:
 
 @pytest.mark.skipif(sys.version_info < (3, 8), reason="Requires Python 3.8+")
 def test_constant_replacement_mutate_constant_str_should_return_python():
-    target_ast = utils.create_ast("""
-class MyClass:
-    \"\"\"This is a class docstring.\"\"\"
-    def my_function():
-        some_string = "mutpy"
-        pass
-""")
+    target_ast = return_ast_with_string("some_string = \"mutpy\"")
     class_node = target_ast.body[0]
     function_node = class_node.body[1]
     function_docstring = function_node.body[0].value
@@ -1000,13 +954,7 @@ class MyClass:
 
 @pytest.mark.skipif(sys.version_info < (3, 8), reason="Requires Python 3.8+")
 def test_constant_replacement_mutate_constant_str_empty_should_raise_if_docstring():
-    target_ast = utils.create_ast("""
-class MyClass:
-    \"\"\"This is a class docstring.\"\"\"
-    def my_function():
-        \"\"\"This is a function docstring.\"\"\"
-        pass
-""")
+    target_ast = return_ast_with_string("\"\"\"This is a function docstring.\"\"\"")
     class_node = target_ast.body[0]
     function_node = class_node.body[1]
     function_docstring = function_node.body[0].value
@@ -1016,13 +964,7 @@ class MyClass:
 
 @pytest.mark.skipif(sys.version_info < (3, 8), reason="Requires Python 3.8+")
 def test_constant_replacement_mutate_constant_str_empty_should_raise_if_empty_string():
-    target_ast = utils.create_ast("""
-class MyClass:
-    \"\"\"This is a class docstring.\"\"\"
-    def my_function():
-        empty_string = ""
-        pass
-""")
+    target_ast = return_ast_with_string("empty_string = \"\"")
     class_node = target_ast.body[0]
     function_node = class_node.body[1]
     function_docstring = function_node.body[0].value
@@ -1032,13 +974,7 @@ class MyClass:
 
 @pytest.mark.skipif(sys.version_info < (3, 8), reason="Requires Python 3.8+")
 def test_constant_replacement_mutate_constant_str_empty_should_return_empty():
-    target_ast = utils.create_ast("""
-class MyClass:
-    \"\"\"This is a class docstring.\"\"\"
-    def my_function():
-        some_string = "mutpy"
-        pass
-""")
+    target_ast = return_ast_with_string("some_string = \"mutpy\"")
     class_node = target_ast.body[0]
     function_node = class_node.body[1]
     function_docstring = function_node.body[0].value
