@@ -400,8 +400,9 @@ def create_ast(code):
 
 def is_docstring(node):
     def_node = node.parent.parent
+    # DeprecationWarning: ast.Str is deprecated and will be removed in Python 3.14; use ast.Constant instead
     return (isinstance(def_node, (ast.FunctionDef, ast.ClassDef, ast.Module)) and def_node.body and
-            isinstance(def_node.body[0], ast.Expr) and isinstance(def_node.body[0].value, ast.Str) and
+            isinstance(def_node.body[0], ast.Expr) and isinstance(def_node.body[0].value, (ast.Constant, ast.Str)) and
             def_node.body[0].value == node)
 
 
