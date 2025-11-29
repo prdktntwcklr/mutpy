@@ -27,5 +27,5 @@ jobs:
     - name: Set Python version
       run: echo "PYTHON_VERSION=${{ matrix.python-version }}" >> $GITHUB_ENV
         
-    - name: Build Docker image
+    - name: Use Docker compose to run tests
       run: docker compose run --rm --build python-test
