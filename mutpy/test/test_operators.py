@@ -859,7 +859,9 @@ def test_constant_replacement_mutate_constant_num_bool():
         _ = operators.ConstantReplacement().mutate_Constant_num(node)
 
 def return_ast_with_string(string: str):
-    return utils.create_ast(f"""
+    """Returns an AST with a class, a function and a specified string for the
+    function docstring."""
+    code = (f"""
 class MyClass:
     \"\"\"This is a class docstring.\"\"\"
     def my_function():
@@ -867,56 +869,57 @@ class MyClass:
         pass
 """)
 
+    return utils.create_ast(code)
+
+def get_function_docstring_from_ast(ast):
+    """Extracts the function docstring from an AST with a class node and a
+    function node."""
+    class_node = ast.body[0]
+    assert class_node, "Class node not found in AST"
+
+    function_node = class_node.body[1]
+    assert function_node, "Function node not found in AST"
+
+    return function_node.body[0].value
+
 def test_constant_replacement_mutate_str_should_raise_if_docstring():
     target_ast = return_ast_with_string("\"\"\"This is a function docstring.\"\"\"")
-    class_node = target_ast.body[0]
-    function_node = class_node.body[1]
-    function_docstring = function_node.body[0].value
+    function_docstring = get_function_docstring_from_ast(target_ast)
 
     with pytest.raises(MutationResign):
         _ = operators.ConstantReplacement().mutate_Str(function_docstring)
 
 def test_constant_replacement_mutate_str_should_return_mutpy():
     target_ast = return_ast_with_string("some_string = \"hello world\"")
-    class_node = target_ast.body[0]
-    function_node = class_node.body[1]
-    function_docstring = function_node.body[0].value
+    function_docstring = get_function_docstring_from_ast(target_ast)
 
     result = operators.ConstantReplacement().mutate_Str(function_docstring)
     assert result.s == "mutpy"
 
 def test_constant_replacement_mutate_str_should_return_python():
     target_ast = return_ast_with_string("some_string = \"mutpy\"")
-    class_node = target_ast.body[0]
-    function_node = class_node.body[1]
-    function_docstring = function_node.body[0].value
+    function_docstring = get_function_docstring_from_ast(target_ast)
 
     result = operators.ConstantReplacement().mutate_Str(function_docstring)
     assert result.s == "python"
 
 def test_constant_replacement_mutate_str_empty_should_raise_if_docstring():
     target_ast = return_ast_with_string("\"\"\"This is a function docstring.\"\"\"")
-    class_node = target_ast.body[0]
-    function_node = class_node.body[1]
-    function_docstring = function_node.body[0].value
+    function_docstring = get_function_docstring_from_ast(target_ast)
 
     with pytest.raises(MutationResign):
         _ = operators.ConstantReplacement().mutate_Str_empty(function_docstring)
 
 def test_constant_replacement_mutate_str_empty_should_raise_if_empty_string():
     target_ast = return_ast_with_string("empty_string = \"\"")
-    class_node = target_ast.body[0]
-    function_node = class_node.body[1]
-    function_docstring = function_node.body[0].value
+    function_docstring = get_function_docstring_from_ast(target_ast)
 
     with pytest.raises(MutationResign):
         _ = operators.ConstantReplacement().mutate_Str_empty(function_docstring)
 
 def test_constant_replacement_mutate_str_empty_should_return_empty():
     target_ast = return_ast_with_string("some_string = \"mutpy\"")
-    class_node = target_ast.body[0]
-    function_node = class_node.body[1]
-    function_docstring = function_node.body[0].value
+    function_docstring = get_function_docstring_from_ast(target_ast)
 
     result = operators.ConstantReplacement().mutate_Str_empty(function_docstring)
     assert result.s == ""
@@ -924,9 +927,7 @@ def test_constant_replacement_mutate_str_empty_should_return_empty():
 @pytest.mark.skipif(sys.version_info < (3, 8), reason="Requires Python 3.8+")
 def test_constant_replacement_mutate_constant_str_should_raise_if_docstring():
     target_ast = return_ast_with_string("\"\"\"This is a function docstring.\"\"\"")
-    class_node = target_ast.body[0]
-    function_node = class_node.body[1]
-    function_docstring = function_node.body[0].value
+    function_docstring = get_function_docstring_from_ast(target_ast)
 
     with pytest.raises(MutationResign):
         _ = operators.ConstantReplacement().mutate_Constant_str(function_docstring)
@@ -935,9 +936,7 @@ def test_constant_replacement_mutate_constant_str_should_raise_if_docstring():
 @pytest.mark.skipif(sys.version_info < (3, 8), reason="Requires Python 3.8+")
 def test_constant_replacement_mutate_constant_str_should_return_mutpy():
     target_ast = return_ast_with_string("some_string = \"hello world\"")
-    class_node = target_ast.body[0]
-    function_node = class_node.body[1]
-    function_docstring = function_node.body[0].value
+    function_docstring = get_function_docstring_from_ast(target_ast)
 
     result = operators.ConstantReplacement().mutate_Constant_str(function_docstring)
     assert result.value == "mutpy"
@@ -945,9 +944,7 @@ def test_constant_replacement_mutate_constant_str_should_return_mutpy():
 @pytest.mark.skipif(sys.version_info < (3, 8), reason="Requires Python 3.8+")
 def test_constant_replacement_mutate_constant_str_should_return_python():
     target_ast = return_ast_with_string("some_string = \"mutpy\"")
-    class_node = target_ast.body[0]
-    function_node = class_node.body[1]
-    function_docstring = function_node.body[0].value
+    function_docstring = get_function_docstring_from_ast(target_ast)
 
     result = operators.ConstantReplacement().mutate_Constant_str(function_docstring)
     assert result.value == "python"
@@ -955,9 +952,7 @@ def test_constant_replacement_mutate_constant_str_should_return_python():
 @pytest.mark.skipif(sys.version_info < (3, 8), reason="Requires Python 3.8+")
 def test_constant_replacement_mutate_constant_str_empty_should_raise_if_docstring():
     target_ast = return_ast_with_string("\"\"\"This is a function docstring.\"\"\"")
-    class_node = target_ast.body[0]
-    function_node = class_node.body[1]
-    function_docstring = function_node.body[0].value
+    function_docstring = get_function_docstring_from_ast(target_ast)
 
     with pytest.raises(MutationResign):
         _ = operators.ConstantReplacement().mutate_Constant_str_empty(function_docstring)
@@ -965,9 +960,7 @@ def test_constant_replacement_mutate_constant_str_empty_should_raise_if_docstrin
 @pytest.mark.skipif(sys.version_info < (3, 8), reason="Requires Python 3.8+")
 def test_constant_replacement_mutate_constant_str_empty_should_raise_if_empty_string():
     target_ast = return_ast_with_string("empty_string = \"\"")
-    class_node = target_ast.body[0]
-    function_node = class_node.body[1]
-    function_docstring = function_node.body[0].value
+    function_docstring = get_function_docstring_from_ast(target_ast)
 
     with pytest.raises(MutationResign):
         _ = operators.ConstantReplacement().mutate_Constant_str_empty(function_docstring)
@@ -975,9 +968,7 @@ def test_constant_replacement_mutate_constant_str_empty_should_raise_if_empty_st
 @pytest.mark.skipif(sys.version_info < (3, 8), reason="Requires Python 3.8+")
 def test_constant_replacement_mutate_constant_str_empty_should_return_empty():
     target_ast = return_ast_with_string("some_string = \"mutpy\"")
-    class_node = target_ast.body[0]
-    function_node = class_node.body[1]
-    function_docstring = function_node.body[0].value
+    function_docstring = get_function_docstring_from_ast(target_ast)
 
     result = operators.ConstantReplacement().mutate_Constant_str_empty(function_docstring)
     assert result.value == ""
