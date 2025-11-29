@@ -418,5 +418,5 @@ def sort_operators(operators):
 
 def f(text):
     lines = text.split('\n')[1:-1]
-    indention = re.search('(\s*).*', lines[0]).group(1)
+    indention = re.search(r'(\s*).*', lines[0]).group(1)
     return '\n'.join(line[len(indention):] for line in lines)
