@@ -18,3 +18,7 @@ MutPy.egg-info/*
 
 # PyCharm
 .idea
+
+# Coverage
+.coverage
+htmlcov/

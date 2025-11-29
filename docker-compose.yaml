@@ -1,0 +1,14 @@
+# Usage:
+#   docker compose run --rm --build python-test
+
+services:
+  python-test:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        PYTHON_VERSION: ${PYTHON_VERSION:-3.6}
+    volumes:
+      - .:/app
+    command: >
+      bash -c "coverage run --source=mutpy -m pytest . && coverage report && coverage html"

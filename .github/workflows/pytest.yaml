@@ -23,9 +23,9 @@ jobs:
 
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
+
+    - name: Set Python version
+      run: echo "PYTHON_VERSION=${{ matrix.python-version }}" >> $GITHUB_ENV
         
     - name: Build Docker image
-      run: docker build --build-arg PYTHON_VERSION=${{ matrix.python-version }} -t pytest-image .
-
-    - name: Run Docker container with pytest
-      run: docker run --rm pytest-image
+      run: docker compose run --rm --build python-test
