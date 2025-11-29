@@ -1,5 +1,6 @@
 import ast
 import unittest
+import sys
 
 from mutpy import operators, codegen, coverage, utils
 
@@ -843,6 +844,21 @@ def test_constant_replacement_mutate_num():
     result = operators.ConstantReplacement().mutate_Num(node)
     assert result.n == 6
 
+def test_constant_replacement_mutate_constant_num_int():
+    node = ast.Constant(value=5)
+    result = operators.ConstantReplacement().mutate_Constant_num(node)
+    assert result.value == 6
+
+def test_constant_replacement_mutate_constant_num_float():
+    node = ast.Constant(value=3.4)
+    result = operators.ConstantReplacement().mutate_Constant_num(node)
+    assert result.value == 4.4
+
+def test_constant_replacement_mutate_constant_num_bool():
+    node = ast.Constant(value=True)
+    with pytest.raises(MutationResign):
+        _ = operators.ConstantReplacement().mutate_Constant_num(node)
+
 def test_constant_replacement_mutate_str_should_raise_if_docstring():
     target_ast = utils.create_ast("""
 class MyClass:
@@ -852,7 +868,6 @@ class MyClass:
         pass
 """)
     class_node = target_ast.body[0]
-    class_docstring = class_node.body[0].value
     function_node = class_node.body[1]
     function_docstring = function_node.body[0].value
 
@@ -868,7 +883,6 @@ class MyClass:
         pass
 """)
     class_node = target_ast.body[0]
-    class_docstring = class_node.body[0].value
     function_node = class_node.body[1]
     function_docstring = function_node.body[0].value
 
@@ -884,7 +898,6 @@ class MyClass:
         pass
 """)
     class_node = target_ast.body[0]
-    class_docstring = class_node.body[0].value
     function_node = class_node.body[1]
     function_docstring = function_node.body[0].value
 
@@ -900,7 +913,6 @@ class MyClass:
         pass
 """)
     class_node = target_ast.body[0]
-    class_docstring = class_node.body[0].value
     function_node = class_node.body[1]
     function_docstring = function_node.body[0].value
 
@@ -916,7 +928,6 @@ class MyClass:
         pass
 """)
     class_node = target_ast.body[0]
-    class_docstring = class_node.body[0].value
     function_node = class_node.body[1]
     function_docstring = function_node.body[0].value
 
@@ -932,9 +943,106 @@ class MyClass:
         pass
 """)
     class_node = target_ast.body[0]
-    class_docstring = class_node.body[0].value
     function_node = class_node.body[1]
     function_docstring = function_node.body[0].value
 
     result = operators.ConstantReplacement().mutate_Str_empty(function_docstring)
     assert result.s == ""
+
+@pytest.mark.skipif(sys.version_info < (3, 8), reason="Requires Python 3.8+")
+def test_constant_replacement_mutate_constant_str_should_raise_if_docstring():
+    target_ast = utils.create_ast("""
+class MyClass:
+    \"\"\"This is a class docstring.\"\"\"
+    def my_function():
+        \"\"\"This is a function docstring.\"\"\"
+        pass
+""")
+    class_node = target_ast.body[0]
+    function_node = class_node.body[1]
+    function_docstring = function_node.body[0].value
+
+    with pytest.raises(MutationResign):
+        _ = operators.ConstantReplacement().mutate_Constant_str(function_docstring)
+
+
+@pytest.mark.skipif(sys.version_info < (3, 8), reason="Requires Python 3.8+")
+def test_constant_replacement_mutate_constant_str_should_return_mutpy():
+    target_ast = utils.create_ast("""
+class MyClass:
+    \"\"\"This is a class docstring.\"\"\"
+    def my_function():
+        some_string = "hello world"
+        pass
+""")
+    class_node = target_ast.body[0]
+    function_node = class_node.body[1]
+    function_docstring = function_node.body[0].value
+
+    result = operators.ConstantReplacement().mutate_Constant_str(function_docstring)
+    assert result.value == "mutpy"
+
+@pytest.mark.skipif(sys.version_info < (3, 8), reason="Requires Python 3.8+")
+def test_constant_replacement_mutate_constant_str_should_return_python():
+    target_ast = utils.create_ast("""
+class MyClass:
+    \"\"\"This is a class docstring.\"\"\"
+    def my_function():
+        some_string = "mutpy"
+        pass
+""")
+    class_node = target_ast.body[0]
+    function_node = class_node.body[1]
+    function_docstring = function_node.body[0].value
+
+    result = operators.ConstantReplacement().mutate_Constant_str(function_docstring)
+    assert result.value == "python"
+
+@pytest.mark.skipif(sys.version_info < (3, 8), reason="Requires Python 3.8+")
+def test_constant_replacement_mutate_constant_str_empty_should_raise_if_docstring():
+    target_ast = utils.create_ast("""
+class MyClass:
+    \"\"\"This is a class docstring.\"\"\"
+    def my_function():
+        \"\"\"This is a function docstring.\"\"\"
+        pass
+""")
+    class_node = target_ast.body[0]
+    function_node = class_node.body[1]
+    function_docstring = function_node.body[0].value
+
+    with pytest.raises(MutationResign):
+        _ = operators.ConstantReplacement().mutate_Constant_str_empty(function_docstring)
+
+@pytest.mark.skipif(sys.version_info < (3, 8), reason="Requires Python 3.8+")
+def test_constant_replacement_mutate_constant_str_empty_should_raise_if_empty_string():
+    target_ast = utils.create_ast("""
+class MyClass:
+    \"\"\"This is a class docstring.\"\"\"
+    def my_function():
+        empty_string = ""
+        pass
+""")
+    class_node = target_ast.body[0]
+    function_node = class_node.body[1]
+    function_docstring = function_node.body[0].value
+
+    with pytest.raises(MutationResign):
+        _ = operators.ConstantReplacement().mutate_Constant_str_empty(function_docstring)
+
+@pytest.mark.skipif(sys.version_info < (3, 8), reason="Requires Python 3.8+")
+def test_constant_replacement_mutate_constant_str_empty_should_return_empty():
+    target_ast = utils.create_ast("""
+class MyClass:
+    \"\"\"This is a class docstring.\"\"\"
+    def my_function():
+        some_string = "mutpy"
+        pass
+""")
+    class_node = target_ast.body[0]
+    function_node = class_node.body[1]
+    function_docstring = function_node.body[0].value
+
+    result = operators.ConstantReplacement().mutate_Constant_str_empty(function_docstring)
+    assert result.value == ""
+
