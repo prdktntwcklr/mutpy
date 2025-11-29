@@ -129,7 +129,7 @@ class MutationOperator:
         return self.getattrs_like(method_prefix)
 
     def getattrs_like(ob, attr_like):
-        pattern = re.compile(attr_like + "($|(_\w+)+$)")
+        pattern = re.compile(attr_like + r"($|(_\w+)+$)")
         return [getattr(ob, attr) for attr in dir(ob) if pattern.match(attr)]
 
     def set_lineno(self, node, lineno):

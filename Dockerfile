@@ -1,13 +1,17 @@
 # Usage:
-#   docker build -t python-test .
-#   docker run python-test
+#   docker build --build-arg PYTHON_VERSION=3.8 -t python-test .
+#   docker run --rm python-test
 
-FROM python:3.6-slim
+ARG PYTHON_VERSION=3.6
+
+FROM python:${PYTHON_VERSION}-slim
 
 WORKDIR /app
 
-COPY . .
+COPY requirements/ ./requirements/
 
 RUN pip install --no-cache-dir -r requirements/development.txt
+
+COPY . .
 
 CMD ["pytest", ".", "-vv"]
