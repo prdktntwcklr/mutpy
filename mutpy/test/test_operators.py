@@ -834,3 +834,59 @@ class ReverseIterationLoopTest(OperatorTestCase):
             'for x in y:' + EOL + INDENT + PASS,
             ['for x in reversed(y):' + EOL + INDENT + PASS],
         )
+
+import pytest
+from mutpy.operators.base import MutationResign
+
+def test_constant_replacement_mutate_num():
+    node = ast.Num(n=5)
+    result = operators.ConstantReplacement().mutate_Num(node)
+    assert result.n == 6
+
+def test_constant_replacement_mutate_str_should_raise_if_docstring():
+    target_ast = utils.create_ast("""
+class MyClass:
+    \"\"\"This is a class docstring.\"\"\"
+    def my_function():
+        \"\"\"This is a function docstring.\"\"\"
+        pass
+""")
+    class_node = target_ast.body[0]
+    class_docstring = class_node.body[0].value
+    function_node = class_node.body[1]
+    function_docstring = function_node.body[0].value
+
+    with pytest.raises(MutationResign):
+        _ = operators.ConstantReplacement().mutate_Str(function_docstring)
+
+def test_constant_replacement_mutate_should_return_mutpy():
+    target_ast = utils.create_ast("""
+class MyClass:
+    \"\"\"This is a class docstring.\"\"\"
+    def my_function():
+        some_string = "hello world"
+        pass
+""")
+    class_node = target_ast.body[0]
+    class_docstring = class_node.body[0].value
+    function_node = class_node.body[1]
+    function_docstring = function_node.body[0].value
+
+    result = operators.ConstantReplacement().mutate_Str(function_docstring)
+    assert result.s == "mutpy"
+
+def test_constant_replacement_mutate_should_return_python():
+    target_ast = utils.create_ast("""
+class MyClass:
+    \"\"\"This is a class docstring.\"\"\"
+    def my_function():
+        some_string = "mutpy"
+        pass
+""")
+    class_node = target_ast.body[0]
+    class_docstring = class_node.body[0].value
+    function_node = class_node.body[1]
+    function_docstring = function_node.body[0].value
+
+    result = operators.ConstantReplacement().mutate_Str(function_docstring)
+    assert result.s == "python"
