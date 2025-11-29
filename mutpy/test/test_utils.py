@@ -199,3 +199,25 @@ class InjectImporterTest(unittest.TestCase):
 
         del sys.modules['source']
         importer.uninstall()
+
+import ast
+
+def test_is_docstring_should_detect_docstring_correctly():
+    target_ast = utils.create_ast("""
+class MyClass:
+    \"\"\"This is a class docstring.\"\"\"
+    def my_function():
+        \"\"\"This is a function docstring.\"\"\"
+        pass
+""")
+    
+    class_node = target_ast.body[0]
+    class_docstring = class_node.body[0].value
+    function_node = class_node.body[1]
+    function_docstring = function_node.body[0].value
+
+    assert utils.is_docstring(class_docstring)
+    assert utils.is_docstring(function_docstring)
+
+    assert not utils.is_docstring(class_node)
+    assert not utils.is_docstring(function_node)

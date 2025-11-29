@@ -14,4 +14,4 @@ RUN pip install --no-cache-dir -r requirements/development.txt
 
 COPY . .
 
-CMD ["pytest", ".", "-vv"]
+CMD ["pytest", "."]
