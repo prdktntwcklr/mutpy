@@ -1,0 +1,15 @@
+# Usage:
+#   docker compose build --build-arg PYTHON_VERSION=3.8 python-test
+#   docker compose run --rm python-test
+
+services:
+  python-test:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        PYTHON_VERSION: ${PYTHON_VERSION:-3.6}  # default to Python 3.6
+    volumes:
+      - .:/app
+    command: >
+      bash -c "coverage run --source=mutpy -m pytest . && coverage report && coverage html"
