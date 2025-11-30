@@ -18,3 +18,10 @@ MutPy.egg-info/*
 
 # PyCharm
 .idea
+
+# Coverage
+.coverage
+htmlcov/
+
+# Pytest
+.cache/
