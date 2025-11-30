@@ -249,7 +249,7 @@ class InjectImporterTest(unittest.TestCase):
         del sys.modules['source']
         importer.uninstall()
 
-SAMPLE_CODE_WITH_DOCSTRING = """
+SAMPLE_CODE_WITH_DOCSTRINGS = """
 \"\"\"This is a module docstring.\"\"\"
 class MyClass:
     \"\"\"This is a class docstring.\"\"\"
@@ -260,8 +260,8 @@ class MyClass:
 
 def test_is_docstring_should_detect_docstring_correctly():
     """Tests that is_docstring can detect docstrings correctly if using utils.create_ast()."""
-    # utils.create_ast() sets parent which allows is_docstring to work correctly
-    module_node = utils.create_ast(SAMPLE_CODE_WITH_DOCSTRING)
+    # utils.create_ast() sets parents allowing is_docstring to work correctly
+    module_node = utils.create_ast(SAMPLE_CODE_WITH_DOCSTRINGS)
     
     module_docstring = module_node.body[0].value
     class_node = module_node.body[1]
@@ -277,9 +277,9 @@ def test_is_docstring_should_detect_docstring_correctly():
     assert not utils.is_docstring(function_node)
 
 def test_is_docstring_should_raise_error_if_there_are_no_grandparents():
-    """Tests that is_docstring does not detect docstring if using ast.parse()."""
-    # ast.parse() does not set parents, so is_docstring always returns false
-    module_node = ast.parse(SAMPLE_CODE_WITH_DOCSTRING)
+    """Tests that is_docstring does raise exception when using ast.parse()."""
+    # ast.parse() does not set parents, so is_docstring() should raise an exception
+    module_node = ast.parse(SAMPLE_CODE_WITH_DOCSTRINGS)
     
     module_docstring = module_node.body[0].value
     
