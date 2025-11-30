@@ -116,66 +116,66 @@ class ConstantReplacementTest(OperatorTestCase):
 
     def test_do_not_mutate_docstring(self):
         self.assert_no_mutation(
-"""
-class MyClass:
-    \"\"\"This is a class docstring.\"\"\"
-    def my_function():
-        \"\"\"This is a function docstring.\"\"\"
-        pass
-""")
+            utils.f("""
+            class MyClass:
+                \"\"\"This is a class docstring.\"\"\"
+                def my_function():
+                    \"\"\"This is a function docstring.\"\"\"
+                    pass
+            """))
 
     def test_string_replacement_in_function(self):
         self.assert_mutation(
-"""
-class MyClass:
-    \"\"\"This is a class docstring.\"\"\"
-    def my_function():
-        some_string = "hello world!"
-        pass
-""", [
-"""
-class MyClass:
-    '''This is a class docstring.'''
-    def my_function():
-        some_string = 'mutpy'
-        pass
-"""
-,
-"""
-class MyClass:
-    '''This is a class docstring.'''
-    def my_function():
-        some_string = ''
-        pass
-"""
-    ]
+            utils.f("""
+            class MyClass:
+                \"\"\"This is a class docstring.\"\"\"
+                def my_function():
+                    some_string = "hello world!"
+                    pass
+            """),
+            [
+                utils.f("""
+                class MyClass:
+                    '''This is a class docstring.'''
+                    def my_function():
+                        some_string = 'mutpy'
+                        pass
+                """),
+                utils.f("""
+                class MyClass:
+                    '''This is a class docstring.'''
+                    def my_function():
+                        some_string = ''
+                        pass
+                """)
+            ]
         )
 
     def test_string_replacement_in_function_with_mutpy(self):
         self.assert_mutation(
-"""
-class MyClass:
-    \"\"\"This is a class docstring.\"\"\"
-    def my_function():
-        some_string = "mutpy"
-        pass
-""", [
-"""
-class MyClass:
-    '''This is a class docstring.'''
-    def my_function():
-        some_string = 'python'
-        pass
-"""
-,
-"""
-class MyClass:
-    '''This is a class docstring.'''
-    def my_function():
-        some_string = ''
-        pass
-"""
-    ]
+            utils.f("""
+            class MyClass:
+                \"\"\"This is a class docstring.\"\"\"
+                def my_function():
+                    some_string = "mutpy"
+                    pass
+            """),
+            [
+                utils.f("""
+                class MyClass:
+                    '''This is a class docstring.'''
+                    def my_function():
+                        some_string = 'python'
+                        pass
+                """),
+                utils.f("""
+                class MyClass:
+                    '''This is a class docstring.'''
+                    def my_function():
+                        some_string = ''
+                        pass
+                """)
+            ]
         )
 
     def test_resign_if_empty(self):
