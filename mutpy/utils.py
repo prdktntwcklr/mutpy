@@ -405,7 +405,9 @@ def is_docstring(node) -> bool:
     try:
         grandparent_node = node.parent.parent
     except AttributeError:
-        raise NoGrandparentError
+        # programmer error: is_docstring only works on nodes that have grandparents
+        raise NoGrandparentError("The given node does not have a grandparent. " \
+        "Make sure to use utils.create_ast().")
 
     # DeprecationWarning: ast.Str is deprecated and will be removed in Python 3.14; use ast.Constant instead
     return (isinstance(grandparent_node, (ast.FunctionDef, ast.ClassDef, ast.Module)) and
