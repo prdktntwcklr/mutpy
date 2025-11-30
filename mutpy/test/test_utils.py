@@ -1,11 +1,13 @@
-import unittest
+import ast
 import os
+import pytest
 import shutil
-import types
-import tempfile
 import sys
-from mutpy import utils, operators
+import tempfile
+import types
+import unittest
 
+from mutpy import utils, operators
 
 class ModulesLoaderTest(unittest.TestCase):
 
@@ -247,15 +249,19 @@ class InjectImporterTest(unittest.TestCase):
         del sys.modules['source']
         importer.uninstall()
 
-def test_is_docstring_should_detect_docstring_correctly():
-    module_node = utils.create_ast("""
+SAMPLE_CODE_WITH_DOCSTRING = """
 \"\"\"This is a module docstring.\"\"\"
 class MyClass:
     \"\"\"This is a class docstring.\"\"\"
     def my_function():
         \"\"\"This is a function docstring.\"\"\"
         pass
-""")
+"""
+
+def test_is_docstring_should_detect_docstring_correctly():
+    """Tests that is_docstring can detect docstrings correctly if using utils.create_ast()."""
+    # utils.create_ast() sets parent which allows is_docstring to work correctly
+    module_node = utils.create_ast(SAMPLE_CODE_WITH_DOCSTRING)
     
     module_docstring = module_node.body[0].value
     class_node = module_node.body[1]
@@ -269,3 +275,13 @@ class MyClass:
 
     assert not utils.is_docstring(class_node)
     assert not utils.is_docstring(function_node)
+
+def test_is_docstring_should_raise_error_if_there_are_no_grandparents():
+    """Tests that is_docstring does not detect docstring if using ast.parse()."""
+    # ast.parse() does not set parents, so is_docstring always returns false
+    module_node = ast.parse(SAMPLE_CODE_WITH_DOCSTRING)
+    
+    module_docstring = module_node.body[0].value
+    
+    with pytest.raises(utils.NoGrandparentError):
+        utils.is_docstring(module_docstring)

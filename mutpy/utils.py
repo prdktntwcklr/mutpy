@@ -397,13 +397,23 @@ class ParentNodeTransformer(ast.NodeTransformer):
 def create_ast(code):
     return ParentNodeTransformer().visit(ast.parse(code))
 
+class NoGrandparentError(Exception):
+    pass
 
-def is_docstring(node):
-    def_node = node.parent.parent
+
+def is_docstring(node) -> bool:
+    try:
+        grandparent_node = node.parent.parent
+    except AttributeError:
+        raise NoGrandparentError
+
     # DeprecationWarning: ast.Str is deprecated and will be removed in Python 3.14; use ast.Constant instead
-    return (isinstance(def_node, (ast.FunctionDef, ast.ClassDef, ast.Module)) and def_node.body and
-            isinstance(def_node.body[0], ast.Expr) and isinstance(def_node.body[0].value, (ast.Constant, ast.Str)) and
-            def_node.body[0].value == node)
+    return (isinstance(grandparent_node, (ast.FunctionDef, ast.ClassDef, ast.Module)) and
+            grandparent_node.body and
+            isinstance(grandparent_node.body[0], ast.Expr) and
+            isinstance(grandparent_node.body[0].value, (ast.Constant, ast.Str)) and
+            grandparent_node.body[0].value == node
+            )
 
 
 def get_by_python_version(classes, python_version=sys.version_info):
