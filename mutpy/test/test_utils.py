@@ -195,11 +195,20 @@ def test_f_should_handle_empty_string():
 
     assert result == expected
 
+def test_f_should_handle_one_newline_character():
+    input_text = """\n"""
+    result = utils.f(input_text)
+
+    # first line should be stripped
+    expected = ""
+
+    assert result == expected
+
 def test_f_should_handle_two_newline_characters():
     input_text = """\n\n"""
     result = utils.f(input_text)
 
-    # first and last newline character should be stripped
+    # first and last line should be stripped
     expected = ""
 
     assert result == expected
@@ -208,11 +217,10 @@ def test_f_should_handle_three_newline_characters():
     input_text = """\n\n\n"""
     result = utils.f(input_text)
 
-    # first and last newline character should be stripped
+    # first and last line should be stripped
     expected = "\n"
 
     assert result == expected
-
 
 class InjectImporterTest(unittest.TestCase):
 
