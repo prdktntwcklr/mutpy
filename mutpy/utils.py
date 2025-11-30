@@ -418,7 +418,9 @@ def sort_operators(operators):
 
 
 def f(text: str) -> str:
-    """Removes function intendation for use in writing test cases."""
+    """Removes the first and last lines from the input text and strips common leading indentation 
+    from the remaining lines. If the input is empty or contains only newline characters, 
+    returns an empty string."""
     if not text:
         return ""
 
