@@ -417,7 +417,15 @@ def sort_operators(operators):
     return sorted(operators, key=lambda cls: cls.name())
 
 
-def f(text):
+def f(text: str) -> str:
+    """Removes function intendation for use in writing test cases."""
+    if not text:
+        return ""
+
     lines = text.split('\n')[1:-1]
+
+    if not lines:
+        return ""
+
     indention = re.search(r'(\s*).*', lines[0]).group(1)
     return '\n'.join(line[len(indention):] for line in lines)

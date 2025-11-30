@@ -165,14 +165,35 @@ class SortOperatorsTest(unittest.TestCase):
         self.assertEqual(sorted_operators[0], A)
         self.assertEqual(sorted_operators[1], Z)
 
+def test_f_should_remove_intendation():
+    input_text = """
+    def f():
+        pass
+    """    
+    result = utils.f(input_text)
 
-class TestF(unittest.TestCase):
+    expected = "def f():\n    pass"
 
-    def test_f(self):
-        self.assertEqual(utils.f("""
-        def f():
-            pass
-        """), 'def f():\n    pass')
+    assert result == expected
+
+def test_f_should_not_remove_intendation_if_there_is_none():
+    input_text = """
+First line
+Second line
+    """    
+    result = utils.f(input_text)
+
+    expected = "First line\nSecond line"
+
+    assert result == expected
+
+def test_f_should_handle_empty_string():
+    input_text = """"""    
+    result = utils.f(input_text)
+
+    expected = ""
+
+    assert result == expected
 
 
 class InjectImporterTest(unittest.TestCase):
