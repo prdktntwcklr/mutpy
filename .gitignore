@@ -22,3 +22,6 @@ MutPy.egg-info/*
 # Coverage
 .coverage
 htmlcov/
+
+# Pytest
+.cache/
