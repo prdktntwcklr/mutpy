@@ -12,4 +12,4 @@ services:
     volumes:
       - .:/app
     command: >
-      bash -c "coverage run --source=mutpy -m pytest . && coverage report && coverage html"
+      bash -c "coverage run --source=mutpy -m pytest mutpy/test && coverage report && coverage html"
