@@ -1,11 +1,13 @@
-import unittest
+import ast
 import os
+import pytest
 import shutil
-import types
-import tempfile
 import sys
-from mutpy import utils, operators
+import tempfile
+import types
+import unittest
 
+from mutpy import utils, operators
 
 class ModulesLoaderTest(unittest.TestCase):
 
@@ -165,15 +167,62 @@ class SortOperatorsTest(unittest.TestCase):
         self.assertEqual(sorted_operators[0], A)
         self.assertEqual(sorted_operators[1], Z)
 
+def test_f_should_remove_intendation():
+    input_text = """
+    def f():
+        pass
+    """    
+    result = utils.f(input_text)
 
-class TestF(unittest.TestCase):
+    expected = "def f():\n    pass"
 
-    def test_f(self):
-        self.assertEqual(utils.f("""
-        def f():
-            pass
-        """), 'def f():\n    pass')
+    assert result == expected
 
+def test_f_should_not_remove_intendation_if_there_is_none():
+    input_text = """
+First line
+Second line
+    """    
+    result = utils.f(input_text)
+
+    expected = "First line\nSecond line"
+
+    assert result == expected
+
+def test_f_should_handle_empty_string():
+    input_text = """"""    
+    result = utils.f(input_text)
+
+    expected = ""
+
+    assert result == expected
+
+def test_f_should_handle_one_newline_character():
+    input_text = """\n"""
+    result = utils.f(input_text)
+
+    # first line should be stripped
+    expected = ""
+
+    assert result == expected
+
+def test_f_should_handle_two_newline_characters():
+    input_text = """\n\n"""
+    result = utils.f(input_text)
+
+    # first and last line should be stripped
+    expected = ""
+
+    assert result == expected
+
+def test_f_should_handle_three_newline_characters():
+    input_text = """\n\n\n"""
+    result = utils.f(input_text)
+
+    # first and last line should be stripped
+    expected = "\n"
+
+    assert result == expected
 
 class InjectImporterTest(unittest.TestCase):
 
@@ -199,3 +248,40 @@ class InjectImporterTest(unittest.TestCase):
 
         del sys.modules['source']
         importer.uninstall()
+
+SAMPLE_CODE_WITH_DOCSTRINGS = """
+\"\"\"This is a module docstring.\"\"\"
+class MyClass:
+    \"\"\"This is a class docstring.\"\"\"
+    def my_function():
+        \"\"\"This is a function docstring.\"\"\"
+        pass
+"""
+
+def test_is_docstring_should_detect_docstring_correctly():
+    """Tests that is_docstring can detect docstrings correctly if using utils.create_ast()."""
+    # utils.create_ast() sets parents allowing is_docstring to work correctly
+    module_node = utils.create_ast(SAMPLE_CODE_WITH_DOCSTRINGS)
+    
+    module_docstring = module_node.body[0].value
+    class_node = module_node.body[1]
+    class_docstring = class_node.body[0].value
+    function_node = class_node.body[1]
+    function_docstring = function_node.body[0].value
+
+    assert utils.is_docstring(module_docstring)
+    assert utils.is_docstring(class_docstring)
+    assert utils.is_docstring(function_docstring)
+
+    assert not utils.is_docstring(class_node)
+    assert not utils.is_docstring(function_node)
+
+def test_is_docstring_should_raise_error_if_there_are_no_grandparents():
+    """Tests that is_docstring does raise exception when using ast.parse()."""
+    # ast.parse() does not set parents, so is_docstring() should raise an exception
+    module_node = ast.parse(SAMPLE_CODE_WITH_DOCSTRINGS)
+    
+    module_docstring = module_node.body[0].value
+    
+    with pytest.raises(utils.NoGrandparentError):
+        utils.is_docstring(module_docstring)

@@ -1,6 +1,7 @@
 from mutpy import commandline
 from approvaltests.approvals import verify
 
+import pytest
 import re
 import sys
 
@@ -14,6 +15,7 @@ custom_args = [
 
 sys.argv = custom_args
 
+@pytest.mark.slow
 def test_approval(capsys):
     commandline.main(sys.argv)
     output = capsys.readouterr().out

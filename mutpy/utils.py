@@ -397,12 +397,25 @@ class ParentNodeTransformer(ast.NodeTransformer):
 def create_ast(code):
     return ParentNodeTransformer().visit(ast.parse(code))
 
+class NoGrandparentError(Exception):
+    pass
 
-def is_docstring(node):
-    def_node = node.parent.parent
-    return (isinstance(def_node, (ast.FunctionDef, ast.ClassDef, ast.Module)) and def_node.body and
-            isinstance(def_node.body[0], ast.Expr) and isinstance(def_node.body[0].value, ast.Str) and
-            def_node.body[0].value == node)
+
+def is_docstring(node) -> bool:
+    try:
+        grandparent_node = node.parent.parent
+    except AttributeError:
+        # programmer error: is_docstring only works on nodes that have grandparents
+        raise NoGrandparentError("The given node does not have a grandparent. " \
+        "Make sure to use utils.create_ast().")
+
+    # DeprecationWarning: ast.Str is deprecated and will be removed in Python 3.14; use ast.Constant instead
+    return (isinstance(grandparent_node, (ast.FunctionDef, ast.ClassDef, ast.Module)) and
+            grandparent_node.body and
+            isinstance(grandparent_node.body[0], ast.Expr) and
+            isinstance(grandparent_node.body[0].value, (ast.Constant, ast.Str)) and
+            grandparent_node.body[0].value == node
+            )
 
 
 def get_by_python_version(classes, python_version=sys.version_info):
@@ -416,7 +429,17 @@ def sort_operators(operators):
     return sorted(operators, key=lambda cls: cls.name())
 
 
-def f(text):
+def f(text: str) -> str:
+    """Removes the first and last lines from the input text and strips common leading indentation 
+    from the remaining lines. If the input is empty or contains only newline characters, 
+    returns an empty string."""
+    if not text:
+        return ""
+
     lines = text.split('\n')[1:-1]
+
+    if not lines:
+        return ""
+
     indention = re.search(r'(\s*).*', lines[0]).group(1)
     return '\n'.join(line[len(indention):] for line in lines)
