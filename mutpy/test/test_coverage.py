@@ -217,3 +217,53 @@ class UnittestCoverageResultTest(unittest.TestCase):
         self.assertEqual(coverage_injector.covered_nodes, {1})
         self.assertEqual(result.test_covered_nodes[repr(test_x)], {1})
         self.assertFalse(result.test_covered_nodes[repr(test_y)])
+
+import ast
+from mutpy.coverage import AbstractCoverageNodeTransformer
+
+class TestCoverageNodeTransformer(AbstractCoverageNodeTransformer):
+    @classmethod
+    def get_coverable_nodes(cls):
+        return {ast.Assign, ast.If, ast.FunctionDef}
+
+class TestAbstractCoverageNodeTransformer(unittest.TestCase):
+    def setUp(self):
+        self.transformer = TestCoverageNodeTransformer()
+
+    def test_inject_before_visit_for_assign(self):
+        node = ast.Assign(
+            targets=[ast.Name(id='x', ctx=ast.Store())],
+            value=ast.Constant(value=1)
+        )
+        node.lineno = 1  # Set line number for the node
+        node.col_offset = 0  # Set column offset
+
+        # Apply the transformer
+        transformed_nodes = self.transformer.visit(node)
+        
+        # Ensure that coverage node is inserted before the original node
+        self.assertEqual(len(transformed_nodes), 2)  # Should be coverage node + original node
+        coverage_node = transformed_nodes[0]
+        self.assertIsInstance(coverage_node, ast.Expr)  # Coverage node should be an Expr (typically)
+        self.assertEqual(coverage_node.lineno, node.lineno)  # Same line number as the original node
+        self.assertEqual(coverage_node.col_offset, node.col_offset)
+
+    def test_inject_inside_visit_for_function(self):
+        node = ast.FunctionDef(
+            name='my_function',
+            args=ast.arguments(
+                args=[], vararg=None, kwonlyargs=[], kw_defaults=[], kwarg=None, defaults=[]
+            ),
+            body=[ast.Pass()],
+            decorator_list=[],
+            lineno=1,
+            col_offset=0
+        )
+
+        transformed_node = self.transformer.inject_inside_visit(node)
+
+        self.assertEqual(len(transformed_node.body), 2)  # One original Pass node + the coverage node
+        coverage_node = transformed_node.body[0]
+        self.assertIsInstance(coverage_node, ast.Expr)  # Coverage node should be an Expr
+        self.assertEqual(coverage_node.lineno, node.lineno)  # Same line number as function
+        self.assertEqual(coverage_node.col_offset, node.col_offset) # Same column offset as function
