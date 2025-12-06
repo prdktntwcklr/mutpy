@@ -114,6 +114,33 @@ class ConstantReplacementTest(OperatorTestCase):
             ],
         )
 
+    def test_class_with_function_mutation(self):
+        self.assert_mutation(
+            utils.f("""
+            class Base:
+                X = 1
+
+                def foo(self):
+                    return 1
+            """),
+            [
+                utils.f("""
+                class Base:
+                    X = 2
+
+                    def foo(self):
+                        return 1
+                """),
+                utils.f("""
+                class Base:
+                    X = 1
+
+                    def foo(self):
+                        return 2
+                """),
+            ]
+        )
+
     def test_do_not_mutate_docstring(self):
         self.assert_no_mutation(
             utils.f("""
