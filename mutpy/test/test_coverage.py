@@ -293,5 +293,3 @@ class TestAbstractCoverageNodeTransformer(unittest.TestCase):
         self.assertIsInstance(coverage_node, ast.Expr)  # Coverage node should be an Expr
         self.assertEqual(coverage_node.lineno, node.lineno)  # Same line number as function
         self.assertEqual(coverage_node.col_offset, node.col_offset) # Same column offset as function
-
-    
