@@ -35,7 +35,7 @@ class HidingVariableDeletion(AbstractOverriddenElementModification):
         if len(node.targets) > 1:
             raise MutationResign()
         if isinstance(node.targets[0], ast.Name) and self.is_overridden(node, name=node.targets[0].id):
-            return ast.Pass()
+            return ast.Pass(end_lineno=node.end_lineno)
         elif isinstance(node.targets[0], ast.Tuple) and isinstance(node.value, ast.Tuple):
             return self.mutate_unpack(node)
         else:
@@ -102,10 +102,12 @@ class OverriddenMethodCallingPositionChange(AbstractSuperCallingModification):
         del node.body[index]
         if index == 0:
             self.set_lineno(super_call, node.body[-1].lineno)
+            self.set_end_lineno(super_call, node.body[-1].end_lineno)
             self.shift_lines(node.body, -1)
             node.body.append(super_call)
         else:
             self.set_lineno(super_call, node.body[0].lineno)
+            self.set_end_lineno(super_call, node.body[0].end_lineno)
             self.shift_lines(node.body, 1)
             node.body.insert(0, super_call)
         return node
@@ -118,7 +120,7 @@ class OverriddenMethodCallingPositionChange(AbstractSuperCallingModification):
 class OverridingMethodDeletion(AbstractOverriddenElementModification):
     def mutate_FunctionDef(self, node):
         if self.is_overridden(node):
-            return ast.Pass()
+            return ast.Pass(end_lineno=node.end_lineno)
         raise MutationResign()
 
     @classmethod
@@ -134,7 +136,7 @@ class SuperCallingDeletion(AbstractSuperCallingModification):
         index, _ = self.get_super_call(node)
         if index is None:
             raise MutationResign()
-        node.body[index] = ast.Pass(lineno=node.body[index].lineno)
+        node.body[index] = ast.Pass(lineno=node.body[index].lineno, end_lineno=node.body[index].end_lineno)
         return node
 
 
@@ -169,6 +171,7 @@ class SuperCallingInsertPython27(AbstractSuperCallingModification, AbstractOverr
         if node.args.kwarg:
             self.add_kwarg_to_super_call(super_call, node.args.kwarg)
         self.set_lineno(super_call, node.body[0].lineno)
+        self.set_end_lineno(super_call, node.body[0].end_lineno)
         return super_call
 
     @staticmethod

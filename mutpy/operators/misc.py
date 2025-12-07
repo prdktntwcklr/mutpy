@@ -79,19 +79,19 @@ class SliceIndexRemove(MutationOperator):
         if not node.lower:
             raise MutationResign()
 
-        return ast.Slice(lower=None, upper=node.upper, step=node.step)
+        return ast.Slice(lower=None, upper=node.upper, step=node.step, end_lineno=node.end_lineno)
 
     def mutate_Slice_remove_upper(self, node):
         if not node.upper:
             raise MutationResign()
 
-        return ast.Slice(lower=node.lower, upper=None, step=node.step)
+        return ast.Slice(lower=node.lower, upper=None, step=node.step, end_lineno=node.end_lineno)
 
     def mutate_Slice_remove_step(self, node):
         if not node.step:
             raise MutationResign()
 
-        return ast.Slice(lower=node.lower, upper=node.upper, step=None)
+        return ast.Slice(lower=node.lower, upper=node.upper, step=None, end_lineno=node.end_lineno)
 
 
 class SelfVariableDeletion(MutationOperator):

@@ -137,6 +137,11 @@ class MutationOperator:
             if hasattr(n, 'lineno'):
                 n.lineno = lineno
 
+    def set_end_lineno(self, node, end_lineno):
+        for n in ast.walk(node):
+            if hasattr(n, 'end_lineno'):
+                n.end_lineno = end_lineno
+
     def shift_lines(self, nodes, shift_by=1):
         for node in nodes:
             ast.increment_lineno(node, shift_by)

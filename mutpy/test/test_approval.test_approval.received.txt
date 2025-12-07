@@ -39,22 +39,22 @@
    - [#  33] DDL simple: <TIMESTAMP> timeout
    - [#  34] EHD simple: <TIMESTAMP> killed by test_handle_exception (simple_good_test.SimpleGoodTest.test_handle_exception)
    - [#  35] EXS simple: <TIMESTAMP> killed by test_handle_exception (simple_good_test.SimpleGoodTest.test_handle_exception)
-   - [#  36] IHD simple: <TIMESTAMP> incompetent
-   - [#  37] IOD simple: <TIMESTAMP> incompetent
-   - [#  38] IOD simple: <TIMESTAMP> incompetent
-   - [#  39] IOD simple: <TIMESTAMP> incompetent
-   - [#  40] IOP simple: <TIMESTAMP> incompetent
+   - [#  36] IHD simple: <TIMESTAMP> killed by test_class_variable (simple_good_test.SimpleGoodTest.test_class_variable)
+   - [#  37] IOD simple: <TIMESTAMP> timeout
+   - [#  38] IOD simple: <TIMESTAMP> killed by test_override (simple_good_test.SimpleGoodTest.test_override)
+   - [#  39] IOD simple: <TIMESTAMP> killed by test_overridden_call (simple_good_test.SimpleGoodTest.test_overridden_call)
+   - [#  40] IOP simple: <TIMESTAMP> killed by test_overridden_call (simple_good_test.SimpleGoodTest.test_overridden_call)
    - [#  41] LCR simple: <TIMESTAMP> killed by test_bool_conjunction (simple_good_test.SimpleGoodTest.test_bool_conjunction)
    - [#  42] LOD simple: <TIMESTAMP> killed by test_negate_bitwise (simple_good_test.SimpleGoodTest.test_negate_bitwise)
    - [#  43] LOR simple: <TIMESTAMP> killed by test_bitwise_conjunction (simple_good_test.SimpleGoodTest.test_bitwise_conjunction)
    - [#  44] ROR simple: <TIMESTAMP> killed by test_loop (simple_good_test.SimpleGoodTest.test_loop)
    - [#  45] SCD simple: <TIMESTAMP> killed by test_overridden_call (simple_good_test.SimpleGoodTest.test_overridden_call)
-   - [#  46] SCI simple: <TIMESTAMP> incompetent
-   - [#  47] SCI simple: <TIMESTAMP> incompetent
-   - [#  48] SIR simple: <TIMESTAMP> incompetent
-[*] Mutation score <TIMESTAMP>: 85.0%
+   - [#  46] SCI simple: <TIMESTAMP> timeout
+   - [#  47] SCI simple: <TIMESTAMP> survived
+   - [#  48] SIR simple: <TIMESTAMP> killed by test_last_two (simple_good_test.SimpleGoodTest.test_last_two)
+[*] Mutation score <TIMESTAMP>: 85.4%
    - all: 48
-   - killed: 30 (62.5%)
-   - survived: 6 (12.5%)
-   - incompetent: 8 (16.7%)
-   - timeout: 4 (8.3%)
+   - killed: 35 (72.9%)
+   - survived: 7 (14.6%)
+   - incompetent: 0 (0.0%)
+   - timeout: 6 (12.5%)
