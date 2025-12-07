@@ -37,8 +37,8 @@
    - [#  31] CRP simple: <TIMESTAMP> killed by test_handle_exception (simple_good_test.SimpleGoodTest.test_handle_exception)
    - [#  32] DDL simple: <TIMESTAMP> timeout
    - [#  33] DDL simple: <TIMESTAMP> timeout
-   - [#  34] EHD simple: <TIMESTAMP> incompetent
-   - [#  35] EXS simple: <TIMESTAMP> incompetent
+   - [#  34] EHD simple: <TIMESTAMP> killed by test_handle_exception (simple_good_test.SimpleGoodTest.test_handle_exception)
+   - [#  35] EXS simple: <TIMESTAMP> killed by test_handle_exception (simple_good_test.SimpleGoodTest.test_handle_exception)
    - [#  36] IHD simple: <TIMESTAMP> incompetent
    - [#  37] IOD simple: <TIMESTAMP> incompetent
    - [#  38] IOD simple: <TIMESTAMP> incompetent
@@ -52,9 +52,9 @@
    - [#  46] SCI simple: <TIMESTAMP> incompetent
    - [#  47] SCI simple: <TIMESTAMP> incompetent
    - [#  48] SIR simple: <TIMESTAMP> incompetent
-[*] Mutation score <TIMESTAMP>: 84.2%
+[*] Mutation score <TIMESTAMP>: 85.0%
    - all: 48
-   - killed: 28 (58.3%)
+   - killed: 30 (62.5%)
    - survived: 6 (12.5%)
-   - incompetent: 10 (20.8%)
+   - incompetent: 8 (16.7%)
    - timeout: 4 (8.3%)
