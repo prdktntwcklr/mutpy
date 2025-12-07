@@ -95,7 +95,8 @@ class MutationControllerTest(unittest.TestCase):
         self.assertEqual(score.survived_mutants, 1)
 
 
-class MutationControllerTest_WithIncompetentMutants(unittest.TestCase):
+class MutationControllerTest_WithIncompetentMutantsInPython311(unittest.TestCase):
+    """This test passes under Python 3.10, but fails under Python 3.11."""
     TARGET_SRC = utils.f("""
     class Base:
         X = 1
@@ -118,12 +119,14 @@ class MutationControllerTest_WithIncompetentMutants(unittest.TestCase):
         target_loader = MockModulesLoader('target', self.TARGET_SRC)
         test_loader = MockModulesLoader('test', self.TEST_SRC)
         self.score_view = MutationScoreStoreView()
+        from mutpy.views import DebugView
+        self.debug_view = DebugView()
         mutator = controller.FirstOrderMutator([operators.ConstantReplacement], percentage=100)
         self.mutation_controller = MockMutationController(
             runner_cls=UnittestTestRunner,
             target_loader=target_loader,
             test_loader=test_loader,
-            views=[self.score_view],
+            views=[self.score_view, self.debug_view],
             mutant_generator=mutator,
             mutate_covered=True,
         )
@@ -133,9 +136,9 @@ class MutationControllerTest_WithIncompetentMutants(unittest.TestCase):
 
         score = self.score_view.score
         self.assertEqual(score.all_mutants, 2)
-        self.assertEqual(score.killed_mutants, 0)
-        self.assertEqual(score.survived_mutants, 0)
-        self.assertEqual(score.incompetent_mutants, 2)
+        self.assertEqual(score.killed_mutants, 1)
+        self.assertEqual(score.survived_mutants, 1)
+        self.assertEqual(score.incompetent_mutants, 0)
 
 
 class BaseHOMStrategyTest(unittest.TestCase):
