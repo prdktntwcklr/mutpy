@@ -249,14 +249,15 @@ class InjectImporterTest(unittest.TestCase):
         del sys.modules['source']
         importer.uninstall()
 
-SAMPLE_CODE_WITH_DOCSTRINGS = """
+SAMPLE_CODE_WITH_DOCSTRINGS = utils.f(
+"""
 \"\"\"This is a module docstring.\"\"\"
 class MyClass:
     \"\"\"This is a class docstring.\"\"\"
     def my_function():
         \"\"\"This is a function docstring.\"\"\"
         pass
-"""
+    """)
 
 def test_is_docstring_should_detect_docstring_correctly():
     """Tests that is_docstring can detect docstrings correctly if using utils.create_ast()."""
@@ -285,3 +286,22 @@ def test_is_docstring_should_raise_error_if_there_are_no_grandparents():
     
     with pytest.raises(utils.NoGrandparentError):
         utils.is_docstring(module_docstring)
+
+def test_create_ast_creates_node_with_end_linenos():
+    """Tests that create_ast() creates nodes with end_lineno filled in."""
+    module_node = utils.create_ast(SAMPLE_CODE_WITH_DOCSTRINGS)
+
+    module_docstring = module_node.body[0].value
+    class_node = module_node.body[1]
+    class_docstring = class_node.body[0].value
+    function_node = class_node.body[1]
+    function_docstring = function_node.body[0].value
+
+    assert module_docstring.lineno == 1
+    assert module_docstring.end_lineno == 1
+    assert class_node.lineno == 2
+    assert class_node.end_lineno == 6
+    assert class_docstring.lineno == 3
+    assert function_node.lineno == 4
+    assert function_node.end_lineno == 6
+    assert function_docstring.lineno == 5
