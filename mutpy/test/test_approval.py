@@ -11,8 +11,6 @@ custom_args = [
     "mut.py",
     "--target", "example/simple.py",
     "--unit-test", "example/test/simple_good_test.py",
-    "--debug",
-    "--show-mutants",
 ]
 
 sys.argv = custom_args
