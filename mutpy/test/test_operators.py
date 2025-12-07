@@ -59,19 +59,19 @@ class OperatorTestCase(unittest.TestCase):
         module = None
         if with_exec:
             module = utils.create_module(original_ast)
-        for mutation, mutatnt in operator.mutate(original_ast, coverage_injector=coverage_injector, module=module):
-            mutant_code = codegen.remove_extra_lines(codegen.to_source(mutatnt))
+        for mutation, mutant in operator.mutate(original_ast, coverage_injector=coverage_injector, module=module):
+            mutant_code = codegen.remove_extra_lines(codegen.to_source(mutant))
             msg = '\n\nMutant:\n\n' + mutant_code + '\n\nNot found in:'
             for other_mutant in mutants:
                 msg += '\n\n----------\n\n' + other_mutant
             self.assertIn(mutant_code, mutants, msg)
             mutants.remove(mutant_code)
-            self.assert_location(mutatnt)
+            self.assert_location(mutant)
             if lines is not None:
                 if not hasattr(mutation.node, 'lineno'):
-                    self.assert_mutation_lineo(mutation.node.parent.lineno, lines)
+                    self.assert_mutation_lineno(mutation.node.parent.lineno, lines)
                 else:
-                    self.assert_mutation_lineo(mutation.node.lineno, lines)
+                    self.assert_mutation_lineno(mutation.node.lineno, lines)
 
         self.assertListEqual(mutants, [], 'did not generate all mutants')
 
@@ -85,7 +85,7 @@ class OperatorTestCase(unittest.TestCase):
             if 'col_offset' in node._attributes:
                 self.assertTrue(hasattr(node, 'col_offset'), 'Missing col_offset in ' + str(node))
 
-    def assert_mutation_lineo(self, lineno, lines):
+    def assert_mutation_lineno(self, lineno, lines):
         mutation_line = lines.pop(0)
         self.assertEqual(mutation_line, lineno, 'Bad mutation lineno!')
 
