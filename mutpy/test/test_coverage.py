@@ -36,6 +36,32 @@ class CoverageInjectorTest(unittest.TestCase):
         constant_node = node.body[0].targets[0]
         self.assert_covered([assign_node, constant_node])
 
+    def test_line_numbers_after_injection(self):
+        node = utils.create_ast(utils.f("""
+from mutpy.utils import notmutate
+
+
+class Base:
+    X = 1
+
+    def foo(self):
+        return 1
+
+    def bar(self):
+        self.x = 1
+"""
+        ))
+
+        self.coverage_injector.inject(node)
+
+        self.assertEqual(node.body[0].lineno, 1)  # Import statement at line 1
+        self.assertEqual(node.body[1].lineno, 4)  # Class definition starts at line 4
+        self.assertEqual(node.body[1].body[0].lineno, 5)  # Assignment X = 1 at line 5
+        self.assertEqual(node.body[1].body[1].lineno, 7)  # Method def foo(self): at line 7
+        self.assertEqual(node.body[1].body[1].body[0].lineno, 8) # return 1: at line 8
+        self.assertEqual(node.body[1].body[2].lineno, 10)  # Method def bar(self): at line 10
+        self.assertEqual(node.body[1].body[2].body[0].lineno, 11)  # self.x = 1 at line 11    
+
     def test_not_covered_node(self):
         node = utils.create_ast('if False:\n\ty = 2')
 
@@ -267,3 +293,5 @@ class TestAbstractCoverageNodeTransformer(unittest.TestCase):
         self.assertIsInstance(coverage_node, ast.Expr)  # Coverage node should be an Expr
         self.assertEqual(coverage_node.lineno, node.lineno)  # Same line number as function
         self.assertEqual(coverage_node.col_offset, node.col_offset) # Same column offset as function
+
+    
