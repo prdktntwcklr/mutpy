@@ -56,7 +56,7 @@ class AbstractCoverageNodeTransformer(ast.NodeTransformer):
         coverage_node = utils.create_ast('{}.update({})'.format(COVERAGE_SET_NAME, repr(markers))).body[0]
         coverage_node.lineno = node.lineno
         coverage_node.col_offset = node.col_offset
-        if sys.version_info[:2] >= (3, 8):
+        if sys.version_info[:2] >= (3, 9):
             coverage_node.end_lineno = node.end_lineno
         return coverage_node
 
