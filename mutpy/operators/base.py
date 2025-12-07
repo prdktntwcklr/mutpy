@@ -1,6 +1,7 @@
 import ast
 import copy
 import re
+import sys
 
 from mutpy import utils
 
@@ -114,6 +115,9 @@ class MutationOperator:
     def fix_lineno(self, node):
         if not hasattr(node, 'lineno') and getattr(node, 'parent', None) is not None and hasattr(node.parent, 'lineno'):
             node.lineno = node.parent.lineno
+        if sys.version_info[:2] >= (3, 9):
+            if not hasattr(node, 'end_lineno') and getattr(node, 'parent', None) is not None and hasattr(node.parent, 'end_lineno'):
+                node.end_lineno = node.parent.end_lineno
 
     def fix_node_internals(self, old_node, new_node):
         if not hasattr(new_node, 'parent'):
@@ -121,6 +125,9 @@ class MutationOperator:
             new_node.parent = old_node.parent
         if not hasattr(new_node, 'lineno') and hasattr(old_node, 'lineno'):
             new_node.lineno = old_node.lineno
+        if sys.version_info[:2] >= (3, 9):
+            if hasattr(old_node, 'end_lineno'):
+                new_node.end_lineno = old_node.end_lineno
         if hasattr(old_node, 'marker'):
             new_node.marker = old_node.marker
 

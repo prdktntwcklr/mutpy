@@ -7,7 +7,7 @@ class BaseExceptionHandlerOperator(MutationOperator):
 
     @staticmethod
     def _replace_exception_body(exception_node, body):
-        return ast.ExceptHandler(type=exception_node.type, name=exception_node.name, lineno=exception_node.lineno, end_lineno=exception_node.end_lineno,
+        return ast.ExceptHandler(type=exception_node.type, name=exception_node.name, lineno=exception_node.lineno,
                                  body=body)
 
 

@@ -287,6 +287,7 @@ def test_is_docstring_should_raise_error_if_there_are_no_grandparents():
     with pytest.raises(utils.NoGrandparentError):
         utils.is_docstring(module_docstring)
 
+@pytest.mark.skipif(sys.version_info[:2] < (3,9), reason="requires python3.9")
 def test_create_ast_creates_node_with_end_linenos():
     """Tests that create_ast() creates nodes with end_lineno filled in."""
     module_node = utils.create_ast(SAMPLE_CODE_WITH_DOCSTRINGS)

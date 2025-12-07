@@ -47,7 +47,7 @@ class ConstantReplacement(MutationOperator):
     
     def mutate_Constant_num(self, node):
         if isinstance(node.value, (int, float)) and not isinstance(node.value, bool):
-            return ast.Constant(value=node.value + 1, end_lineno=node.end_lineno)
+            return ast.Constant(value=node.value + 1)
         else:
             raise MutationResign()
 
@@ -56,7 +56,7 @@ class ConstantReplacement(MutationOperator):
         
     def mutate_Constant_str(self, node):
         if isinstance(node.value, str):
-            return ast.Constant(value=self._string_helper(node), end_lineno=node.end_lineno)
+            return ast.Constant(value=self._string_helper(node))
         else:
             raise MutationResign()
 
@@ -65,7 +65,7 @@ class ConstantReplacement(MutationOperator):
     
     def mutate_Constant_str_empty(self, node):
         if isinstance(node.value, str):
-            return ast.Constant(s=self._string_helper_empty(node), end_lineno=node.end_lineno)
+            return ast.Constant(s=self._string_helper_empty(node))
         else:
             raise MutationResign()
 
@@ -79,19 +79,19 @@ class SliceIndexRemove(MutationOperator):
         if not node.lower:
             raise MutationResign()
 
-        return ast.Slice(lower=None, upper=node.upper, step=node.step, end_lineno=node.end_lineno)
+        return ast.Slice(lower=None, upper=node.upper, step=node.step)
 
     def mutate_Slice_remove_upper(self, node):
         if not node.upper:
             raise MutationResign()
 
-        return ast.Slice(lower=node.lower, upper=None, step=node.step, end_lineno=node.end_lineno)
+        return ast.Slice(lower=node.lower, upper=None, step=node.step)
 
     def mutate_Slice_remove_step(self, node):
         if not node.step:
             raise MutationResign()
 
-        return ast.Slice(lower=node.lower, upper=node.upper, step=None, end_lineno=node.end_lineno)
+        return ast.Slice(lower=node.lower, upper=node.upper, step=None)
 
 
 class SelfVariableDeletion(MutationOperator):
