@@ -47,7 +47,7 @@ class ConstantReplacement(MutationOperator):
     
     def mutate_Constant_num(self, node):
         if isinstance(node.value, (int, float)) and not isinstance(node.value, bool):
-            return ast.Constant(value=node.value + 1)
+            return ast.Constant(value=node.value + 1, end_lineno=node.end_lineno)
         else:
             raise MutationResign()
 
@@ -56,7 +56,7 @@ class ConstantReplacement(MutationOperator):
         
     def mutate_Constant_str(self, node):
         if isinstance(node.value, str):
-            return ast.Constant(value=self._string_helper(node))
+            return ast.Constant(value=self._string_helper(node), end_lineno=node.end_lineno)
         else:
             raise MutationResign()
 
@@ -65,7 +65,7 @@ class ConstantReplacement(MutationOperator):
     
     def mutate_Constant_str_empty(self, node):
         if isinstance(node.value, str):
-            return ast.Constant(s=self._string_helper_empty(node))
+            return ast.Constant(s=self._string_helper_empty(node), end_lineno=node.end_lineno)
         else:
             raise MutationResign()
 
