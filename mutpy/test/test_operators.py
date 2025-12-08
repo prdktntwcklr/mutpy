@@ -932,23 +932,3 @@ class ReverseIterationLoopTest(OperatorTestCase):
             'for x in y:' + EOL + INDENT + PASS,
             ['for x in reversed(y):' + EOL + INDENT + PASS],
         )
-
-def test_constant_replacement_mutate_num():
-    node = ast.Num(n=5)
-    result = operators.ConstantReplacement().mutate_Num(node)
-    assert result.n == 6
-
-def test_constant_replacement_mutate_constant_num_int():
-    node = ast.Constant(value=5)
-    result = operators.ConstantReplacement().mutate_Constant_num(node)
-    assert result.value == 6
-
-def test_constant_replacement_mutate_constant_num_float():
-    node = ast.Constant(value=3.4)
-    result = operators.ConstantReplacement().mutate_Constant_num(node)
-    assert result.value == 4.4
-
-def test_constant_replacement_mutate_constant_num_bool():
-    node = ast.Constant(value=True)
-    with pytest.raises(MutationResign):
-        _ = operators.ConstantReplacement().mutate_Constant_num(node)

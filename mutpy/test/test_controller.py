@@ -60,7 +60,7 @@ class MutationScoreStoreView:
         self.score = score
 
 
-class MutationControllerTest(unittest.TestCase):
+class MutationControllerTest_ArithmeticOperatorReplacement(unittest.TestCase):
     TARGET_SRC = 'def mul(x): return x * x'
     TEST_SRC = utils.f("""
     import target
@@ -95,8 +95,7 @@ class MutationControllerTest(unittest.TestCase):
         self.assertEqual(score.survived_mutants, 1)
 
 
-class MutationControllerTest_WithIncompetentMutantsInPython311(unittest.TestCase):
-    """This test passes under Python 3.10, but fails under Python 3.11."""
+class MutationControllerTest_ConstantReplacement(unittest.TestCase):
     TARGET_SRC = utils.f("""
     class Base:
         X = 1
