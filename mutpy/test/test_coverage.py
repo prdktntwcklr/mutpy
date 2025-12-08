@@ -36,6 +36,32 @@ class CoverageInjectorTest(unittest.TestCase):
         constant_node = node.body[0].targets[0]
         self.assert_covered([assign_node, constant_node])
 
+    def test_line_numbers_after_injection(self):
+        node = utils.create_ast(utils.f("""
+from mutpy.utils import notmutate
+
+
+class Base:
+    X = 1
+
+    def foo(self):
+        return 1
+
+    def bar(self):
+        self.x = 1
+"""
+        ))
+
+        self.coverage_injector.inject(node)
+
+        self.assertEqual(node.body[0].lineno, 1)  # Import statement at line 1
+        self.assertEqual(node.body[1].lineno, 4)  # Class definition starts at line 4
+        self.assertEqual(node.body[1].body[0].lineno, 5)  # Assignment X = 1 at line 5
+        self.assertEqual(node.body[1].body[1].lineno, 7)  # Method def foo(self): at line 7
+        self.assertEqual(node.body[1].body[1].body[0].lineno, 8) # return 1: at line 8
+        self.assertEqual(node.body[1].body[2].lineno, 10)  # Method def bar(self): at line 10
+        self.assertEqual(node.body[1].body[2].body[0].lineno, 11)  # self.x = 1 at line 11    
+
     def test_not_covered_node(self):
         node = utils.create_ast('if False:\n\ty = 2')
 
@@ -217,3 +243,53 @@ class UnittestCoverageResultTest(unittest.TestCase):
         self.assertEqual(coverage_injector.covered_nodes, {1})
         self.assertEqual(result.test_covered_nodes[repr(test_x)], {1})
         self.assertFalse(result.test_covered_nodes[repr(test_y)])
+
+import ast
+from mutpy.coverage import AbstractCoverageNodeTransformer
+
+class TestCoverageNodeTransformer(AbstractCoverageNodeTransformer):
+    @classmethod
+    def get_coverable_nodes(cls):
+        return {ast.Assign, ast.If, ast.FunctionDef}
+
+class TestAbstractCoverageNodeTransformer(unittest.TestCase):
+    def setUp(self):
+        self.transformer = TestCoverageNodeTransformer()
+
+    def test_inject_before_visit_for_assign(self):
+        node = ast.Assign(
+            targets=[ast.Name(id='x', ctx=ast.Store())],
+            value=ast.Constant(value=1)
+        )
+        node.lineno = 1  # Set line number for the node
+        node.col_offset = 0  # Set column offset
+
+        # Apply the transformer
+        transformed_nodes = self.transformer.visit(node)
+        
+        # Ensure that coverage node is inserted before the original node
+        self.assertEqual(len(transformed_nodes), 2)  # Should be coverage node + original node
+        coverage_node = transformed_nodes[0]
+        self.assertIsInstance(coverage_node, ast.Expr)  # Coverage node should be an Expr (typically)
+        self.assertEqual(coverage_node.lineno, node.lineno)  # Same line number as the original node
+        self.assertEqual(coverage_node.col_offset, node.col_offset)
+
+    def test_inject_inside_visit_for_function(self):
+        node = ast.FunctionDef(
+            name='my_function',
+            args=ast.arguments(
+                args=[], vararg=None, kwonlyargs=[], kw_defaults=[], kwarg=None, defaults=[]
+            ),
+            body=[ast.Pass()],
+            decorator_list=[],
+            lineno=1,
+            col_offset=0
+        )
+
+        transformed_node = self.transformer.inject_inside_visit(node)
+
+        self.assertEqual(len(transformed_node.body), 2)  # One original Pass node + the coverage node
+        coverage_node = transformed_node.body[0]
+        self.assertIsInstance(coverage_node, ast.Expr)  # Coverage node should be an Expr
+        self.assertEqual(coverage_node.lineno, node.lineno)  # Same line number as function
+        self.assertEqual(coverage_node.col_offset, node.col_offset) # Same column offset as function

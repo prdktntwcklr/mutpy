@@ -58,3 +58,7 @@ class TextViewTest(unittest.TestCase):
             self.SEPARATOR + self.EOL + '- 1: x = x + 1' + self.EOL + '+ 1: x = x - 1' + self.EOL + self.SEPARATOR,
             output
         )
+
+def test_normalize_killer():
+    assert TextView().normalize_killer("test_negate_number (simple_good_test.SimpleGoodTest.test_negate_number)") == "test_negate_number (simple_good_test.SimpleGoodTest)"
+    assert TextView().normalize_killer("test_negate_number (simple_good_test.SimpleGoodTest)") == "test_negate_number (simple_good_test.SimpleGoodTest)"

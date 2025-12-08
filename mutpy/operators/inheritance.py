@@ -1,5 +1,6 @@
 import ast
 import functools
+import sys
 
 from mutpy import utils
 from mutpy.operators.base import MutationResign, MutationOperator, copy_node
@@ -102,10 +103,14 @@ class OverriddenMethodCallingPositionChange(AbstractSuperCallingModification):
         del node.body[index]
         if index == 0:
             self.set_lineno(super_call, node.body[-1].lineno)
+            if sys.version_info[:2] >= (3, 9):
+                self.set_end_lineno(super_call, node.body[-1].end_lineno)
             self.shift_lines(node.body, -1)
             node.body.append(super_call)
         else:
             self.set_lineno(super_call, node.body[0].lineno)
+            if sys.version_info[:2] >= (3, 9):
+                self.set_end_lineno(super_call, node.body[0].end_lineno)
             self.shift_lines(node.body, 1)
             node.body.insert(0, super_call)
         return node
@@ -134,11 +139,15 @@ class SuperCallingDeletion(AbstractSuperCallingModification):
         index, _ = self.get_super_call(node)
         if index is None:
             raise MutationResign()
-        node.body[index] = ast.Pass(lineno=node.body[index].lineno)
+        if sys.version_info[:2] >= (3, 9):
+            node.body[index] = ast.Pass(lineno=node.body[index].lineno, end_lineno=node.body[index].end_lineno)
+        else:
+            node.body[index] = ast.Pass(lineno=node.body[index].lineno)
         return node
 
 
 class SuperCallingInsertPython27(AbstractSuperCallingModification, AbstractOverriddenElementModification):
+
     __python_version__ = (2, 7)
 
     def should_mutate(self, node):
@@ -169,6 +178,8 @@ class SuperCallingInsertPython27(AbstractSuperCallingModification, AbstractOverr
         if node.args.kwarg:
             self.add_kwarg_to_super_call(super_call, node.args.kwarg)
         self.set_lineno(super_call, node.body[0].lineno)
+        if sys.version_info[:2] >= (3, 9):
+            self.set_end_lineno(super_call, node.body[0].end_lineno)
         return super_call
 
     @staticmethod

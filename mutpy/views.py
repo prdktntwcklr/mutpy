@@ -74,7 +74,6 @@ class QuietTextView:
         else:
             return '[{:.5f} s]'.format(time)
 
-
 class TextView(QuietTextView):
 
     def __init__(self, colored_output=False, show_mutants=False):
@@ -157,9 +156,22 @@ class TextView(QuietTextView):
     @staticmethod
     def _create_diff(mutant_src, original_src):
         return list(unified_diff(original_src.split('\n'), mutant_src.split('\n'), n=4, lineterm=''))
+    
+    @staticmethod
+    def normalize_killer(input: str) -> str:
+        """Normalizes the killer string since this has changed between different
+        versions of Python."""
+        # Split the string at the first opening parenthesis
+        test_name, class_with_method = input.split("(", 1)
+        # Remove the closing parenthesis and split the class.method part
+        class_name = class_with_method.split(")")[0].split(".")[:2]
+        # Join the first two parts of the class name
+        class_name = ".".join(class_name)
+        # Combine the test name with the modified class name
+        return f"{test_name.strip()} ({class_name})"
 
     def killed(self, time, killer, *args, **kwargs):
-        self.level_print(self.time_format(time) + ' ' + self.decorate('killed', 'green') + ' by ' + str(killer),
+        self.level_print(self.time_format(time) + ' ' + self.decorate('killed', 'green') + ' by ' + str(self.normalize_killer(killer)),
                          continuation=True)
 
     def survived(self, time, *args, **kwargs):

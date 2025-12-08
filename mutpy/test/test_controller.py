@@ -60,7 +60,7 @@ class MutationScoreStoreView:
         self.score = score
 
 
-class MutationControllerTest(unittest.TestCase):
+class MutationControllerTest_ArithmeticOperatorReplacement(unittest.TestCase):
     TARGET_SRC = 'def mul(x): return x * x'
     TEST_SRC = utils.f("""
     import target
@@ -93,6 +93,51 @@ class MutationControllerTest(unittest.TestCase):
         self.assertEqual(score.all_mutants, 3)
         self.assertEqual(score.killed_mutants, 2)
         self.assertEqual(score.survived_mutants, 1)
+
+
+class MutationControllerTest_ConstantReplacement(unittest.TestCase):
+    TARGET_SRC = utils.f("""
+    class Base:
+        X = 1
+
+        def foo(self):
+            return 1
+
+        def bar(self):
+            self.x = 1
+    """)
+    TEST_SRC = utils.f("""
+    import target
+    from unittest import TestCase
+    class FooTest(TestCase):
+        def test_foo(self):
+            self.assertEqual(target.Base().foo(), 1)
+    """)
+
+    def setUp(self):
+        target_loader = MockModulesLoader('target', self.TARGET_SRC)
+        test_loader = MockModulesLoader('test', self.TEST_SRC)
+        self.score_view = MutationScoreStoreView()
+        from mutpy.views import DebugView
+        self.debug_view = DebugView()
+        mutator = controller.FirstOrderMutator([operators.ConstantReplacement], percentage=100)
+        self.mutation_controller = MockMutationController(
+            runner_cls=UnittestTestRunner,
+            target_loader=target_loader,
+            test_loader=test_loader,
+            views=[self.score_view, self.debug_view],
+            mutant_generator=mutator,
+            mutate_covered=True,
+        )
+
+    def test_run(self):
+        self.mutation_controller.run()
+
+        score = self.score_view.score
+        self.assertEqual(score.all_mutants, 2)
+        self.assertEqual(score.killed_mutants, 1)
+        self.assertEqual(score.survived_mutants, 1)
+        self.assertEqual(score.incompetent_mutants, 0)
 
 
 class BaseHOMStrategyTest(unittest.TestCase):
