@@ -59,19 +59,19 @@ class OperatorTestCase(unittest.TestCase):
         module = None
         if with_exec:
             module = utils.create_module(original_ast)
-        for mutation, mutatnt in operator.mutate(original_ast, coverage_injector=coverage_injector, module=module):
-            mutant_code = codegen.remove_extra_lines(codegen.to_source(mutatnt))
+        for mutation, mutant in operator.mutate(original_ast, coverage_injector=coverage_injector, module=module):
+            mutant_code = codegen.remove_extra_lines(codegen.to_source(mutant))
             msg = '\n\nMutant:\n\n' + mutant_code + '\n\nNot found in:'
             for other_mutant in mutants:
                 msg += '\n\n----------\n\n' + other_mutant
             self.assertIn(mutant_code, mutants, msg)
             mutants.remove(mutant_code)
-            self.assert_location(mutatnt)
+            self.assert_location(mutant)
             if lines is not None:
                 if not hasattr(mutation.node, 'lineno'):
-                    self.assert_mutation_lineo(mutation.node.parent.lineno, lines)
+                    self.assert_mutation_lineno(mutation.node.parent.lineno, lines)
                 else:
-                    self.assert_mutation_lineo(mutation.node.lineno, lines)
+                    self.assert_mutation_lineno(mutation.node.lineno, lines)
 
         self.assertListEqual(mutants, [], 'did not generate all mutants')
 
@@ -85,7 +85,7 @@ class OperatorTestCase(unittest.TestCase):
             if 'col_offset' in node._attributes:
                 self.assertTrue(hasattr(node, 'col_offset'), 'Missing col_offset in ' + str(node))
 
-    def assert_mutation_lineo(self, lineno, lines):
+    def assert_mutation_lineno(self, lineno, lines):
         mutation_line = lines.pop(0)
         self.assertEqual(mutation_line, lineno, 'Bad mutation lineno!')
 
@@ -112,6 +112,33 @@ class ConstantReplacementTest(OperatorTestCase):
                 "x = '' + 'egs'",
                 "x = 'ham' + ''",
             ],
+        )
+
+    def test_class_with_function_mutation(self):
+        self.assert_mutation(
+            utils.f("""
+            class Base:
+                X = 1
+
+                def foo(self):
+                    return 1
+            """),
+            [
+                utils.f("""
+                class Base:
+                    X = 2
+
+                    def foo(self):
+                        return 1
+                """),
+                utils.f("""
+                class Base:
+                    X = 1
+
+                    def foo(self):
+                        return 2
+                """),
+            ]
         )
 
     def test_do_not_mutate_docstring(self):
@@ -905,23 +932,3 @@ class ReverseIterationLoopTest(OperatorTestCase):
             'for x in y:' + EOL + INDENT + PASS,
             ['for x in reversed(y):' + EOL + INDENT + PASS],
         )
-
-def test_constant_replacement_mutate_num():
-    node = ast.Num(n=5)
-    result = operators.ConstantReplacement().mutate_Num(node)
-    assert result.n == 6
-
-def test_constant_replacement_mutate_constant_num_int():
-    node = ast.Constant(value=5)
-    result = operators.ConstantReplacement().mutate_Constant_num(node)
-    assert result.value == 6
-
-def test_constant_replacement_mutate_constant_num_float():
-    node = ast.Constant(value=3.4)
-    result = operators.ConstantReplacement().mutate_Constant_num(node)
-    assert result.value == 4.4
-
-def test_constant_replacement_mutate_constant_num_bool():
-    node = ast.Constant(value=True)
-    with pytest.raises(MutationResign):
-        _ = operators.ConstantReplacement().mutate_Constant_num(node)
