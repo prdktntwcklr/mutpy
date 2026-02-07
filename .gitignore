@@ -25,3 +25,6 @@ htmlcov/
 
 # Pytest
 .cache/
+
+# Virtual Environment
+.venv/

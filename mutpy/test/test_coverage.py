@@ -247,14 +247,14 @@ class UnittestCoverageResultTest(unittest.TestCase):
 import ast
 from mutpy.coverage import AbstractCoverageNodeTransformer
 
-class TestCoverageNodeTransformer(AbstractCoverageNodeTransformer):
+class CoverageNodeTransformerForTest(AbstractCoverageNodeTransformer):
     @classmethod
     def get_coverable_nodes(cls):
         return {ast.Assign, ast.If, ast.FunctionDef}
 
 class TestAbstractCoverageNodeTransformer(unittest.TestCase):
     def setUp(self):
-        self.transformer = TestCoverageNodeTransformer()
+        self.transformer = CoverageNodeTransformerForTest()
 
     def test_inject_before_visit_for_assign(self):
         node = ast.Assign(

@@ -10,4 +10,5 @@ WORKDIR /app
 
 COPY requirements/ ./requirements/
 
-RUN pip install --no-cache-dir -r requirements/development.txt
+RUN python -m pip install --upgrade pip && \
+    pip install --no-cache-dir -r requirements/development.txt
