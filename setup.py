@@ -19,7 +19,7 @@ with open('README.rst') as f:
 setup(
     name='MutPy',
     version=mutpy.__version__,
-    python_requires='>=3.6',
+    python_requires='>=3.7',
     description='Mutation testing tool for Python 3.x source code.',
     long_description=long_description,
     author='Konrad Hałas',
@@ -35,7 +35,6 @@ setup(
     },
     test_suite='mutpy.test',
     classifiers=[
-        'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.9',
