@@ -224,8 +224,8 @@ def test_f_should_handle_three_newline_characters():
 
     assert result == expected
 
+@pytest.mark.skipif(sys.version_info[:2] >= (3,12), reason="MutPy mock loaders fail on Python 3.12 due to importlib changes")
 class InjectImporterTest(unittest.TestCase):
-
     def test_inject(self):
         target_module_content = utils.f("""
         def x():
