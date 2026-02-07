@@ -1,5 +1,5 @@
 -r production.txt
 
 approvaltests
-coverage
 pytest
+pytest-cov
