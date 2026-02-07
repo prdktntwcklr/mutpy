@@ -134,6 +134,73 @@ class CoverageNodeTransformerPython33(AbstractCoverageNodeTransformer):
             ast.Return,
             ast.ClassDef,
             ast.FunctionDef,
+            ast.Try,  # replaces ast.TryExcept and ast.TryFinally
+            ast.ExceptHandler,
+            ast.If,
+            ast.For,
+            ast.While,
+        }
+    
+
+class CoverageNodeTransformerPython35(AbstractCoverageNodeTransformer):
+    __python_version__ = (3, 5)
+
+    @classmethod
+    def get_coverable_nodes(cls):
+        return {
+            ast.Assert,
+            ast.Assign,
+            ast.AsyncFor,  # new in Python 3.5
+            ast.AsyncFunctionDef,  # new in Python 3.5
+            ast.AsyncWith,  # new in Python 3.5
+            ast.AugAssign,
+            ast.Break,
+            ast.Continue,
+            ast.Delete,
+            ast.Expr,
+            ast.Global,
+            ast.Import,
+            ast.ImportFrom,
+            ast.Nonlocal,
+            ast.Pass,
+            ast.Raise,
+            ast.Return,
+            ast.ClassDef,
+            ast.FunctionDef,
+            ast.Try,
+            ast.ExceptHandler,
+            ast.If,
+            ast.For,
+            ast.While,
+        }
+    
+
+class CoverageNodeTransformerPython310(AbstractCoverageNodeTransformer):
+    __python_version__ = (3, 10)
+
+    @classmethod
+    def get_coverable_nodes(cls):
+        return {
+            ast.Assert,
+            ast.Assign,
+            ast.AsyncFor,
+            ast.AsyncFunctionDef,
+            ast.AsyncWith,
+            ast.AugAssign,
+            ast.Break,
+            ast.Continue,
+            ast.Delete,
+            ast.Expr,
+            ast.Global,
+            ast.Import,
+            ast.ImportFrom,
+            ast.Match,  # new in Python 3.10
+            ast.Nonlocal,
+            ast.Pass,
+            ast.Raise,
+            ast.Return,
+            ast.ClassDef,
+            ast.FunctionDef,
             ast.Try,
             ast.ExceptHandler,
             ast.If,
@@ -145,6 +212,8 @@ class CoverageNodeTransformerPython33(AbstractCoverageNodeTransformer):
 CoverageNodeTransformer = utils.get_by_python_version([
     CoverageNodeTransformerPython32,
     CoverageNodeTransformerPython33,
+    CoverageNodeTransformerPython35,
+    CoverageNodeTransformerPython310,
 ])
 
 
