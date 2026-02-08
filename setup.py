@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
 
+# NOTE: This version is a fork maintained by prdktntwcklr.
+# It is not currently published to PyPI. 
+# Install via: pip install git+https://github.com/prdktntwcklr/mutpy.git
+
 import sys
 
 from setuptools import setup
@@ -17,7 +21,7 @@ with open('README.md', encoding='utf-8') as f:
     long_description = f.read()
 
 setup(
-    name='MutPy-37plus',
+    name='MutPy',
     version=mutpy.__version__,
     python_requires='>=3.7',
     description='A fork of MutPy for Python 3.7+ source code.',
