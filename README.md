@@ -24,19 +24,21 @@ From the [relevant article on Wikipedia](https://en.wikipedia.org/wiki/Mutation_
 
 ## Installation
 
-You can easily install MutPy from PyPi:
+This is a fork of MutPy updated for Python 3.7+. Since this version is not
+hosted on PyPI, you can install it directly from GitHub using pip:
 
 ```bash
-$ pip install mutpy
+$ pip install git+https://github.com/prdktntwcklr/mutpy.git
 ```
 
-\... or if you want to have latest changes you can clone this repository
-and install MutPy from sources:
+### Installing from source
+
+If you want to contribute or modify the code locally, clone the repository and install it in "editable" mode:
 
 ```bash
-$ git clone git@github.com:mutpy/mutpy.git
+$ git clone https://github.com/prdktntwcklr/mutpy.git
 $ cd mutpy/
-$ python3 setup.py install
+$ pip install -e .
 ```
 
 ## Example
