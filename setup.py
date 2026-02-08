@@ -17,7 +17,7 @@ with open('README.md', encoding='utf-8') as f:
     long_description = f.read()
 
 setup(
-    name='MutPy',
+    name='MutPy-37plus',
     version=mutpy.__version__,
     python_requires='>=3.7',
     description='A fork of MutPy for Python 3.7+ source code.',
