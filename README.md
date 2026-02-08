@@ -1,5 +1,7 @@
 # MutPy
 
+![Python Support](https://img.shields.io/badge/python-3.7--3.13-blue?logo=python&logoColor=white)
+
 MutPy is a mutation testing tool for Python 3.7+ source code. MutPy
 supports standard unittest module, generates YAML/HTML reports and has
 colorful output. It applies mutation on AST level. You could boost your
