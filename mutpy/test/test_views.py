@@ -1,10 +1,13 @@
+import pytest
 import sys
 import unittest
+
 from contextlib import contextmanager
 from io import StringIO
+from unittest.mock import MagicMock
 
 from mutpy import utils
-from mutpy.views import QuietTextView, TextView
+from mutpy.views import QuietTextView, TextView, ViewNotifier
 
 COLOR_RED = 'red'
 
@@ -62,3 +65,49 @@ class TextViewTest(unittest.TestCase):
 def test_normalize_killer():
     assert TextView().normalize_killer("test_negate_number (simple_good_test.SimpleGoodTest.test_negate_number)") == "test_negate_number (simple_good_test.SimpleGoodTest)"
     assert TextView().normalize_killer("test_negate_number (simple_good_test.SimpleGoodTest)") == "test_negate_number (simple_good_test.SimpleGoodTest)"
+
+def test_view_notifier_dispatches_calls():
+    mock_view_1 = MagicMock()
+    mock_view_2 = MagicMock()
+    
+    notifier = ViewNotifier([mock_view_1, mock_view_2])
+    
+    notifier.notify_initialize(targets=['math_lib'], tests=['test_math'])
+    
+    mock_view_1.initialize.assert_called_once_with(targets=['math_lib'], tests=['test_math'])
+    mock_view_2.initialize.assert_called_once_with(targets=['math_lib'], tests=['test_math'])
+
+def test_view_notifier_ignores_missing_methods():
+    mock_view = MagicMock(spec=[])
+    notifier = ViewNotifier([mock_view])
+    
+    # This should not raise an AttributeError even if the view lacks the method
+    notifier.notify_something_random()
+
+def test_view_notifier_raises_attribute_error():
+    mock_view = MagicMock(spec=[])
+    notifier = ViewNotifier([mock_view])
+    
+    with pytest.raises(AttributeError):
+        # does not start with notify_ prefix, should trigger Exception
+        notifier.something_else()
+
+def test_view_notifier_add_view():
+    mock_view = MagicMock()
+    notifier = ViewNotifier([])
+    notifier.add_view(mock_view)
+
+    notifier.notify_initialize(targets=['math_lib'], tests=['test_math'])
+
+    mock_view.initialize.assert_called_once_with(targets=['math_lib'], tests=['test_math'])
+
+def test_view_notifier_del_view():
+    mock_view_1 = MagicMock()
+    mock_view_2 = MagicMock()
+    
+    notifier = ViewNotifier([mock_view_1, mock_view_2])
+    notifier.del_view(mock_view_2)
+    
+    notifier.notify_initialize(targets=['math_lib'], tests=['test_math'])
+    
+    mock_view_1.initialize.assert_called_once_with(targets=['math_lib'], tests=['test_math'])
