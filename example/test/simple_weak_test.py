@@ -2,7 +2,7 @@ import unittest
 from example.simple import Simple
 
 
-class SimpleWeekTest(unittest.TestCase):
+class SimpleWeakTest(unittest.TestCase):
 
     def setUp(self):
         self.simple = Simple(1337)
