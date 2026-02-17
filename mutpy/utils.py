@@ -360,7 +360,7 @@ class MutationTestRunnerThread(MutationTestRunner, Thread):
 
             if res == 0:
                 # No thread with the given ID, or the thread no longer exists
-                print(f"Failed to terminate thread {self.ident}: thread no longer exists.")
+                pass
             elif res == 1:
                 # Thread was successfully terminated
                 pass
