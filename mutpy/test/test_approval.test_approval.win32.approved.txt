@@ -1,0 +1,60 @@
+[*] Start mutation process:
+   - targets: example/simple.py
+   - tests: example/test/simple_good_test.py
+[*] 21 tests passed:
+   - simple_good_test <TIMESTAMP>
+[*] Start mutants generation and execution:
+   - [#   1] AOD simple: <TIMESTAMP> survived
+   - [#   2] AOD simple: <TIMESTAMP> killed by test_negate_number (simple_good_test.SimpleGoodTest)
+   - [#   3] AOR simple: <TIMESTAMP> killed by test_add (simple_good_test.SimpleGoodTest)
+   - [#   4] AOR simple: <TIMESTAMP> incompetent
+   - [#   5] AOR simple: <TIMESTAMP> survived
+   - [#   6] AOR simple: <TIMESTAMP> killed by test_is_not_odd (simple_good_test.SimpleGoodTest)
+   - [#   7] AOR simple: <TIMESTAMP> killed by test_get_inc_const (simple_good_test.SimpleGoodTest)
+   - [#   8] AOR simple: <TIMESTAMP> killed by test_negate_number (simple_good_test.SimpleGoodTest)
+   - [#   9] ASR simple: <TIMESTAMP> timeout
+   - [#  10] ASR simple: <TIMESTAMP> killed by test_overridden_call (simple_good_test.SimpleGoodTest)
+   - [#  11] COD simple: <TIMESTAMP> killed by test_negate_bool (simple_good_test.SimpleGoodTest)
+   - [#  12] COI simple: <TIMESTAMP> killed by test_loop (simple_good_test.SimpleGoodTest)
+   - [#  13] COI simple: <TIMESTAMP> killed by test_is_not_odd (simple_good_test.SimpleGoodTest)
+   - [#  14] CRP simple: <TIMESTAMP> survived
+   - [#  15] CRP simple: <TIMESTAMP> survived
+   - [#  16] CRP simple: <TIMESTAMP> killed by test_overridden_call (simple_good_test.SimpleGoodTest)
+   - [#  17] CRP simple: <TIMESTAMP> killed by test_class_variable (simple_good_test.SimpleGoodTest)
+   - [#  18] CRP simple: <TIMESTAMP> killed by test_add_two (simple_good_test.SimpleGoodTest)
+   - [#  19] CRP simple: <TIMESTAMP> killed by test_add_etc (simple_good_test.SimpleGoodTest)
+   - [#  20] CRP simple: <TIMESTAMP> killed by test_add_etc (simple_good_test.SimpleGoodTest)
+   - [#  21] CRP simple: <TIMESTAMP> survived
+   - [#  22] CRP simple: <TIMESTAMP> killed by test_loop (simple_good_test.SimpleGoodTest)
+   - [#  23] CRP simple: <TIMESTAMP> survived
+   - [#  24] CRP simple: <TIMESTAMP> killed by test_last_two (simple_good_test.SimpleGoodTest)
+   - [#  25] CRP simple: <TIMESTAMP> killed by test_empty_string (simple_good_test.SimpleGoodTest)
+   - [#  26] CRP simple: <TIMESTAMP> killed by test_is_not_odd (simple_good_test.SimpleGoodTest)
+   - [#  27] CRP simple: <TIMESTAMP> killed by test_get_const (simple_good_test.SimpleGoodTest)
+   - [#  28] CRP simple: <TIMESTAMP> killed by test_get_inc_const (simple_good_test.SimpleGoodTest)
+   - [#  29] CRP simple: <TIMESTAMP> killed by test_override (simple_good_test.SimpleGoodTest)
+   - [#  30] CRP simple: <TIMESTAMP> killed by test_overridden_call (simple_good_test.SimpleGoodTest)
+   - [#  31] CRP simple: <TIMESTAMP> killed by test_handle_exception (simple_good_test.SimpleGoodTest)
+   - [#  32] DDL simple: <TIMESTAMP> incompetent
+   - [#  33] DDL simple: <TIMESTAMP> incompetent
+   - [#  34] EHD simple: <TIMESTAMP> killed by test_handle_exception (simple_good_test.SimpleGoodTest)
+   - [#  35] EXS simple: <TIMESTAMP> killed by test_handle_exception (simple_good_test.SimpleGoodTest)
+   - [#  36] IHD simple: <TIMESTAMP> killed by test_class_variable (simple_good_test.SimpleGoodTest)
+   - [#  37] IOD simple: <TIMESTAMP> incompetent
+   - [#  38] IOD simple: <TIMESTAMP> killed by test_override (simple_good_test.SimpleGoodTest)
+   - [#  39] IOD simple: <TIMESTAMP> killed by test_overridden_call (simple_good_test.SimpleGoodTest)
+   - [#  40] IOP simple: <TIMESTAMP> killed by test_overridden_call (simple_good_test.SimpleGoodTest)
+   - [#  41] LCR simple: <TIMESTAMP> killed by test_bool_conjunction (simple_good_test.SimpleGoodTest)
+   - [#  42] LOD simple: <TIMESTAMP> killed by test_negate_bitwise (simple_good_test.SimpleGoodTest)
+   - [#  43] LOR simple: <TIMESTAMP> killed by test_bitwise_conjunction (simple_good_test.SimpleGoodTest)
+   - [#  44] ROR simple: <TIMESTAMP> killed by test_loop (simple_good_test.SimpleGoodTest)
+   - [#  45] SCD simple: <TIMESTAMP> killed by test_overridden_call (simple_good_test.SimpleGoodTest)
+   - [#  46] SCI simple: <TIMESTAMP> incompetent
+   - [#  47] SCI simple: <TIMESTAMP> survived
+   - [#  48] SIR simple: <TIMESTAMP> killed by test_last_two (simple_good_test.SimpleGoodTest)
+[*] Mutation score <TIMESTAMP>: 83.7%
+   - all: 48
+   - killed: 35 (72.9%)
+   - survived: 7 (14.6%)
+   - incompetent: 5 (10.4%)
+   - timeout: 1 (2.1%)

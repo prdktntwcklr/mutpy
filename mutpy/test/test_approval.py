@@ -1,5 +1,6 @@
 from mutpy import commandline
 from approvaltests.approvals import verify
+from approvaltests.namer import NamerFactory
 
 import pytest
 import re
@@ -7,19 +8,25 @@ import sys
 
 # --- Tests ---
 
-custom_args = [
-    "mut.py",
-    "--target", "example/simple.py",
-    "--unit-test", "example/test/simple_good_test.py",
-]
-
-sys.argv = custom_args
-
 @pytest.mark.slow
-def test_approval(capsys):
+def test_approval(capsys, monkeypatch):
+    """
+    Validates mutation testing example against platform-specific approved files.
+    """
+    custom_args = [
+        "mut.py",
+        "--target", "example/simple.py",
+        "--unit-test", "example/test/simple_good_test.py",
+    ]
+
+    monkeypatch.setattr(sys, "argv", custom_args)
+
     commandline.main(sys.argv)
     output = capsys.readouterr().out
-    verify(_normalize(output))
+    
+    # This appends the OS name to the approved file (e.g., .win32.approved.txt)
+    options = NamerFactory.with_parameters(sys.platform)
+    verify(_normalize(output), options=options)
 
 def test_normalize():
     assert _normalize("[5.00672 s]") == "<TIMESTAMP>"
