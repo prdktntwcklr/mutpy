@@ -111,3 +111,7 @@ def test_view_notifier_del_view():
     notifier.notify_initialize(targets=['math_lib'], tests=['test_math'])
     
     mock_view_1.initialize.assert_called_once_with(targets=['math_lib'], tests=['test_math'])
+
+def test_quiet_text_view_time_format():
+    assert QuietTextView.time_format(1.234567) == "[1.23457 s]"
+    assert QuietTextView.time_format(None) == "[    -    ]"
