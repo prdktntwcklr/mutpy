@@ -59,7 +59,8 @@ def run_mutpy(parser):
         list_hom_strategies()
     elif cfg.target and cfg.unit_test:
         mutation_controller = build_controller(cfg)
-        mutation_controller.run()
+        exit_code = mutation_controller.run()
+        sys.exit(exit_code)
     else:
         parser.print_usage()
 
