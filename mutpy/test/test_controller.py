@@ -377,7 +377,6 @@ class HighOrderMutatorTest(unittest.TestCase):
         self.assertEqual(codegen.to_source(target_ast), "x = 'test'")
 
 
-@pytest.mark.skipif(sys.version_info[:2] >= (3,12), reason="MutPy mock loaders fail on Python 3.12 due to importlib changes")
 class MutationControllerExitCodeTest(unittest.TestCase):
     """Test that the mutation controller returns appropriate exit codes"""
 
