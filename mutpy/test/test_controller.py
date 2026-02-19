@@ -379,128 +379,63 @@ class HighOrderMutatorTest(unittest.TestCase):
 
 @pytest.mark.skipif(sys.version_info[:2] >= (3,12), reason="MutPy mock loaders fail on Python 3.12 due to importlib changes")
 class MutationControllerExitCodeTest(unittest.TestCase):
-    """Test that the mutation controller returns the number of survivors as exit code"""
+    """Test that the mutation controller returns appropriate exit codes"""
 
-    def test_run_returns_number_of_survivors(self):
-        """Test that run() returns the number of survivors"""
+    def setUp(self):
+        """Set up a mutation controller with mocked dependencies"""
         # Create mock runners
         mock_runner_instance = mock.Mock()
         mock_runner_class = mock.Mock(return_value=mock_runner_instance)
         
-        # Create a simple mock controller without full initialization
+        # Create mock loaders
         target_loader = mock.Mock()
         target_loader.names = []
         test_loader = mock.Mock()
         test_loader.names = []
         
-        ctrl = controller.MutationController(
+        # Create the controller
+        self.ctrl = controller.MutationController(
             runner_cls=mock_runner_class,
             target_loader=target_loader,
             test_loader=test_loader,
             views=[],
             mutant_generator=mock.Mock(),
         )
-        
-        # Mock the run_mutation_process to avoid actual mutation
-        with mock.patch.object(ctrl, 'run_mutation_process'):
-            # Manually set the score to simulate completion
-            ctrl.score = controller.MutationScore()
-            ctrl.score.survived_mutants = 3
-            ctrl.score.killed_mutants = 5
+
+    def test_run_returns_number_of_survivors(self):
+        """Test that run() returns the number of survivors"""
+        with mock.patch.object(self.ctrl, 'run_mutation_process'):
+            self.ctrl.score = controller.MutationScore()
+            self.ctrl.score.survived_mutants = 3
+            self.ctrl.score.killed_mutants = 5
             
-            # Run and check the return value
-            exit_code = ctrl.run()
+            exit_code = self.ctrl.run()
             
-            # Verify the return value equals the number of survivors
             self.assertEqual(exit_code, 3)
 
     def test_run_returns_zero_when_no_survivors(self):
         """Test that run() returns 0 when all mutants are killed"""
-        # Create mock runners
-        mock_runner_instance = mock.Mock()
-        mock_runner_class = mock.Mock(return_value=mock_runner_instance)
-        
-        # Create a simple mock controller
-        target_loader = mock.Mock()
-        target_loader.names = []
-        test_loader = mock.Mock()
-        test_loader.names = []
-        
-        ctrl = controller.MutationController(
-            runner_cls=mock_runner_class,
-            target_loader=target_loader,
-            test_loader=test_loader,
-            views=[],
-            mutant_generator=mock.Mock(),
-        )
-        
-        # Mock the run_mutation_process
-        with mock.patch.object(ctrl, 'run_mutation_process'):
-            # Manually set the score - no survivors
-            ctrl.score = controller.MutationScore()
-            ctrl.score.survived_mutants = 0
-            ctrl.score.killed_mutants = 5
+        with mock.patch.object(self.ctrl, 'run_mutation_process'):
+            self.ctrl.score = controller.MutationScore()
+            self.ctrl.score.survived_mutants = 0
+            self.ctrl.score.killed_mutants = 5
             
-            # Run and check the return value
-            exit_code = ctrl.run()
+            exit_code = self.ctrl.run()
             
-            # Verify the return value is 0
             self.assertEqual(exit_code, 0)
 
     def test_run_returns_minus_one_on_test_failure(self):
         """Test that run() returns -1 when original tests fail"""
-        # Create mock runners
-        mock_runner_instance = mock.Mock()
-        mock_runner_class = mock.Mock(return_value=mock_runner_instance)
-        
-        # Create a simple mock controller
-        target_loader = mock.Mock()
-        target_loader.names = []
-        test_loader = mock.Mock()
-        test_loader.names = []
-        
-        ctrl = controller.MutationController(
-            runner_cls=mock_runner_class,
-            target_loader=target_loader,
-            test_loader=test_loader,
-            views=[],
-            mutant_generator=mock.Mock(),
-        )
-        
-        # Mock run_mutation_process to raise TestsFailAtOriginal
-        with mock.patch.object(ctrl, 'run_mutation_process', 
+        with mock.patch.object(self.ctrl, 'run_mutation_process', 
                               side_effect=controller.TestsFailAtOriginal(result=mock.Mock())):
-            # Run and check the return value
-            exit_code = ctrl.run()
+            exit_code = self.ctrl.run()
             
-            # Verify the return value is -1
             self.assertEqual(exit_code, -1)
 
     def test_run_returns_minus_two_on_module_load_error(self):
         """Test that run() returns -2 when modules fail to load"""
-        # Create mock runners
-        mock_runner_instance = mock.Mock()
-        mock_runner_class = mock.Mock(return_value=mock_runner_instance)
-        
-        # Create a simple mock controller
-        target_loader = mock.Mock()
-        target_loader.names = []
-        test_loader = mock.Mock()
-        test_loader.names = []
-        
-        ctrl = controller.MutationController(
-            runner_cls=mock_runner_class,
-            target_loader=target_loader,
-            test_loader=test_loader,
-            views=[],
-            mutant_generator=mock.Mock(),
-        )
-        
-        # Mock run_mutation_process to raise ModulesLoaderException
         loader_exc = utils.ModulesLoaderException('test_module', Exception('load error'))
-        with mock.patch.object(ctrl, 'run_mutation_process', side_effect=loader_exc):
-            # Run and check the return value
-            exit_code = ctrl.run()
+        with mock.patch.object(self.ctrl, 'run_mutation_process', side_effect=loader_exc):
+            exit_code = self.ctrl.run()
             
-            # Verify the return value is -2
             self.assertEqual(exit_code, -2)
