@@ -371,7 +371,11 @@ class MutationTestRunnerThread(MutationTestRunner, Thread):
                 if res == 0:
                     # Thread already terminated (race condition)
                     pass
-                elif res != 1:
+                elif res == 1:
+                    # Successfully sent termination signal
+                    pass
+                else:  # res > 1
+                    # More than one thread affected, this should not happen
                     raise SystemError('Thread killing failed.')
             except (ValueError, AttributeError):
                 # Thread already terminated - ident is no longer valid
