@@ -2,10 +2,12 @@ import ast
 import pytest
 import sys
 import unittest
+from unittest import mock
 
 from mutpy import controller, operators, utils, codegen
 from mutpy.test.utils import MockModulesLoader
 from mutpy.test_runners import UnittestTestRunner
+
 
 
 class MutationScoreTest(unittest.TestCase):
@@ -87,7 +89,10 @@ class MutationControllerTest_ArithmeticOperatorReplacement(unittest.TestCase):
         )
 
     def test_run(self):
-        self.mutation_controller.run()
+        try:
+            self.mutation_controller.run()
+        except SystemExit:
+            pass
 
         score = self.score_view.score
         self.assertEqual(score.all_mutants, 3)
@@ -131,7 +136,10 @@ class MutationControllerTest_ConstantReplacement(unittest.TestCase):
         )
 
     def test_run(self):
-        self.mutation_controller.run()
+        try:
+            self.mutation_controller.run()
+        except SystemExit:
+            pass
 
         score = self.score_view.score
         self.assertEqual(score.all_mutants, 2)
@@ -371,3 +379,42 @@ class HighOrderMutatorTest(unittest.TestCase):
                 self.assertEqual(len(mutations), 1)
         self.assertEqual(number, 1)
         self.assertEqual(codegen.to_source(target_ast), "x = 'test'")
+
+
+@pytest.mark.skipif(sys.version_info[:2] >= (3,12), reason="MutPy mock loaders fail on Python 3.12 due to importlib changes")
+class MutationControllerExitCodeTest(unittest.TestCase):
+    """Test that the mutation controller returns the number of survivors as exit code"""
+
+    def test_exit_code_equals_number_of_survivors_on_success(self):
+        """Test that sys.exit is called with the number of survivors"""
+        with mock.patch('sys.exit') as mock_exit:
+            # Create mock runners
+            mock_runner_instance = mock.Mock()
+            mock_runner_class = mock.Mock(return_value=mock_runner_instance)
+            
+            # Create a simple mock controller without full initialization
+            target_loader = mock.Mock()
+            target_loader.names = []
+            test_loader = mock.Mock()
+            test_loader.names = []
+            
+            ctrl = controller.MutationController(
+                runner_cls=mock_runner_class,
+                target_loader=target_loader,
+                test_loader=test_loader,
+                views=[],
+                mutant_generator=mock.Mock(),
+            )
+            
+            # Mock the run_mutation_process to avoid actual mutation
+            with mock.patch.object(ctrl, 'run_mutation_process'):
+                # Manually set the score to simulate completion
+                ctrl.score = controller.MutationScore()
+                ctrl.score.survived_mutants = 3
+                ctrl.score.killed_mutants = 5
+                
+                # Run and check if sys.exit was called with correct code
+                ctrl.run()
+                
+                # Verify sys.exit was called with the number of survivors
+                mock_exit.assert_called_once_with(3)
