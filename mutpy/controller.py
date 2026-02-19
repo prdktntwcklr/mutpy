@@ -59,7 +59,7 @@ class MutationController(views.ViewNotifier):
         self.mutation_number = mutation_number
         self.runner = runner_cls(self.test_loader, self.timeout_factor, self.stdout_manager, mutate_covered)
 
-    def run(self):
+    def run(self) -> int:
         """
         Execute the mutation testing process and return an exit code.
         
