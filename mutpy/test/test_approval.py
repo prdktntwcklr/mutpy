@@ -21,7 +21,12 @@ def test_approval(capsys, monkeypatch):
 
     monkeypatch.setattr(sys, "argv", custom_args)
 
-    commandline.main(sys.argv)
+    try:
+        commandline.main(sys.argv)
+    except SystemExit:
+        # commandline.main() calls sys.exit() with the number of survivors
+        pass
+    
     output = capsys.readouterr().out
     
     # This appends the OS name to the approved file (e.g., .win32.approved.txt)

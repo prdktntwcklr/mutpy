@@ -59,18 +59,35 @@ class MutationController(views.ViewNotifier):
         self.mutation_number = mutation_number
         self.runner = runner_cls(self.test_loader, self.timeout_factor, self.stdout_manager, mutate_covered)
 
-    def run(self):
+    def run(self) -> int:
+        """
+        Execute the mutation testing process and return an exit code.
+        
+        This method orchestrates the entire mutation testing workflow:
+        1. Initializes the testing process with target and test module names
+        2. Runs the mutation process while timing its execution
+        3. Notifies views of completion with the final mutation score
+        4. Returns the number of surviving mutants as the exit code
+        
+        Returns:
+            int: Exit code to be used with sys.exit()
+            - 0: All mutants were killed (no survivors)
+            - N > 0: Number of mutants that survived the test suite
+            - -1: Original tests failed (tests must pass before mutation testing)
+            - -2: Failed to load target or test modules
+        """
         self.notify_initialize(self.target_loader.names, self.test_loader.names)
         try:
             timer = utils.Timer()
             self.run_mutation_process()
             self.notify_end(self.score, timer.stop())
+            return self.score.survived_mutants
         except TestsFailAtOriginal as error:
             self.notify_original_tests_fail(error.result)
-            sys.exit(-1)
+            return -1
         except utils.ModulesLoaderException as error:
             self.notify_cant_load(error.name, error.exception)
-            sys.exit(-2)
+            return -2
 
     def run_mutation_process(self):
         try:

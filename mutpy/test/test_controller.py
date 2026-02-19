@@ -2,10 +2,12 @@ import ast
 import pytest
 import sys
 import unittest
+from unittest import mock
 
 from mutpy import controller, operators, utils, codegen
 from mutpy.test.utils import MockModulesLoader
 from mutpy.test_runners import UnittestTestRunner
+
 
 
 class MutationScoreTest(unittest.TestCase):
@@ -87,7 +89,8 @@ class MutationControllerTest_ArithmeticOperatorReplacement(unittest.TestCase):
         )
 
     def test_run(self):
-        self.mutation_controller.run()
+        exit_code = self.mutation_controller.run()
+        self.assertEqual(exit_code, 1)  # 1 survivor
 
         score = self.score_view.score
         self.assertEqual(score.all_mutants, 3)
@@ -131,7 +134,8 @@ class MutationControllerTest_ConstantReplacement(unittest.TestCase):
         )
 
     def test_run(self):
-        self.mutation_controller.run()
+        exit_code = self.mutation_controller.run()
+        self.assertEqual(exit_code, 1)  # 1 survivor
 
         score = self.score_view.score
         self.assertEqual(score.all_mutants, 2)
@@ -371,3 +375,66 @@ class HighOrderMutatorTest(unittest.TestCase):
                 self.assertEqual(len(mutations), 1)
         self.assertEqual(number, 1)
         self.assertEqual(codegen.to_source(target_ast), "x = 'test'")
+
+
+class MutationControllerExitCodeTest(unittest.TestCase):
+    """Test that the mutation controller returns appropriate exit codes"""
+
+    def setUp(self):
+        """Set up a mutation controller with mocked dependencies"""
+        # Create mock runners
+        mock_runner_instance = mock.Mock()
+        mock_runner_class = mock.Mock(return_value=mock_runner_instance)
+        
+        # Create mock loaders
+        target_loader = mock.Mock()
+        target_loader.names = []
+        test_loader = mock.Mock()
+        test_loader.names = []
+        
+        # Create the controller
+        self.ctrl = controller.MutationController(
+            runner_cls=mock_runner_class,
+            target_loader=target_loader,
+            test_loader=test_loader,
+            views=[],
+            mutant_generator=mock.Mock(),
+        )
+
+    def test_run_returns_number_of_survivors(self):
+        """Test that run() returns the number of survivors"""
+        with mock.patch.object(self.ctrl, 'run_mutation_process'):
+            self.ctrl.score = controller.MutationScore()
+            self.ctrl.score.survived_mutants = 3
+            self.ctrl.score.killed_mutants = 5
+            
+            exit_code = self.ctrl.run()
+            
+            self.assertEqual(exit_code, 3)
+
+    def test_run_returns_zero_when_no_survivors(self):
+        """Test that run() returns 0 when all mutants are killed"""
+        with mock.patch.object(self.ctrl, 'run_mutation_process'):
+            self.ctrl.score = controller.MutationScore()
+            self.ctrl.score.survived_mutants = 0
+            self.ctrl.score.killed_mutants = 5
+            
+            exit_code = self.ctrl.run()
+            
+            self.assertEqual(exit_code, 0)
+
+    def test_run_returns_minus_one_on_test_failure(self):
+        """Test that run() returns -1 when original tests fail"""
+        with mock.patch.object(self.ctrl, 'run_mutation_process', 
+                              side_effect=controller.TestsFailAtOriginal(result=mock.Mock())):
+            exit_code = self.ctrl.run()
+            
+            self.assertEqual(exit_code, -1)
+
+    def test_run_returns_minus_two_on_module_load_error(self):
+        """Test that run() returns -2 when modules fail to load"""
+        loader_exc = utils.ModulesLoaderException('test_module', Exception('load error'))
+        with mock.patch.object(self.ctrl, 'run_mutation_process', side_effect=loader_exc):
+            exit_code = self.ctrl.run()
+            
+            self.assertEqual(exit_code, -2)
