@@ -327,7 +327,11 @@ class MutationTestRunner:
         self.suite = suite
 
     def run(self):
-        result = self.suite.run()
+        try:
+            result = self.suite.run()
+        except SystemExit:
+            # Thread was terminated by timeout (SystemExit raised by terminate() method)
+            return
         self.set_result(result)
 
 
@@ -353,13 +357,29 @@ class MutationTestRunnerThread(MutationTestRunner, Thread):
         super().__init__(*args, **kwargs)
         self.result = None
 
-    def terminate(self):
+    def terminate(self) -> None:
+        """
+        Terminate the thread by raising SystemExit asynchronously.
+        
+        Handles race conditions gracefully where the thread may terminate between
+        the is_alive() check and the actual termination attempt. Such timing issues
+        are silently ignored to avoid spurious errors during test runner cleanup.
+        """
         if self.is_alive():
-            res = ctypes.pythonapi.PyThreadState_SetAsyncExc(ctypes.c_long(self.ident), ctypes.py_object(SystemExit))
-            if res == 0:
-                raise ValueError('Invalid thread id.')
-            elif res != 1:
-                raise SystemError('Thread killing failed.')
+            try:
+                res = ctypes.pythonapi.PyThreadState_SetAsyncExc(ctypes.c_long(self.ident), ctypes.py_object(SystemExit))
+                if res == 0:
+                    # Thread already terminated (race condition)
+                    pass
+                elif res == 1:
+                    # Successfully sent termination signal
+                    pass
+                else:  # res > 1
+                    # More than one thread affected, this should not happen
+                    raise SystemError('Thread killing failed.')
+            except (ValueError, AttributeError):
+                # Thread already terminated - ident is no longer valid
+                pass
 
     def set_result(self, result):
         self.result = result
