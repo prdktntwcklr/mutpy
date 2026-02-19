@@ -327,7 +327,11 @@ class MutationTestRunner:
         self.suite = suite
 
     def run(self):
-        result = self.suite.run()
+        try:
+            result = self.suite.run()
+        except SystemExit:
+            # Thread was terminated by timeout (SystemExit raised by terminate() method)
+            return
         self.set_result(result)
 
 
