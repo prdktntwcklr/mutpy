@@ -353,7 +353,14 @@ class MutationTestRunnerThread(MutationTestRunner, Thread):
         super().__init__(*args, **kwargs)
         self.result = None
 
-    def terminate(self):
+    def terminate(self) -> None:
+        """
+        Terminate the thread by raising SystemExit asynchronously.
+        
+        Handles race conditions gracefully where the thread may terminate between
+        the is_alive() check and the actual termination attempt. Such timing issues
+        are silently ignored to avoid spurious errors during test runner cleanup.
+        """
         if self.is_alive():
             try:
                 res = ctypes.pythonapi.PyThreadState_SetAsyncExc(ctypes.c_long(self.ident), ctypes.py_object(SystemExit))
