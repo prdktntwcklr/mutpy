@@ -35,7 +35,7 @@ setup(
     download_url='https://github.com/prdktntwcklr/mutpy',
     packages=['mutpy', 'mutpy.operators', 'mutpy.test_runners'],
     package_data={'mutpy': ['templates/*.html']},
-    scripts=['bin/mut.py'],
+    entry_points={'console_scripts': ['mutpy = mutpy.mut:main']},
     install_requires=requirements,
     extras_require={
         'pytest': ["pytest>=3.0"]

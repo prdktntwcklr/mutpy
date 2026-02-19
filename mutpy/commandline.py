@@ -5,9 +5,9 @@ from mutpy import __version__ as version
 from mutpy import controller, views, operators, utils
 
 
-def main(argv):
+def entry(argv=None):
     parser = build_parser()
-    run_mutpy(parser)
+    run_mutpy(parser, argv)
 
 
 def build_parser():
@@ -51,8 +51,13 @@ def build_parser():
     return parser
 
 
-def run_mutpy(parser):
-    cfg = parser.parse_args()
+def run_mutpy(parser, argv=None):
+    # If argv is provided, treat it like sys.argv (program name at index 0)
+    # and pass the remainder to argparse. If argv is None, argparse will
+    # consume sys.argv automatically.
+    args = None if argv is None else argv[1:]
+    cfg = parser.parse_args(args)
+
     if cfg.list_operators:
         list_operators()
     elif cfg.list_hom_strategies:
