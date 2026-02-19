@@ -355,11 +355,16 @@ class MutationTestRunnerThread(MutationTestRunner, Thread):
 
     def terminate(self):
         if self.is_alive():
-            res = ctypes.pythonapi.PyThreadState_SetAsyncExc(ctypes.c_long(self.ident), ctypes.py_object(SystemExit))
-            if res == 0:
-                raise ValueError('Invalid thread id.')
-            elif res != 1:
-                raise SystemError('Thread killing failed.')
+            try:
+                res = ctypes.pythonapi.PyThreadState_SetAsyncExc(ctypes.c_long(self.ident), ctypes.py_object(SystemExit))
+                if res == 0:
+                    # Thread already terminated (race condition)
+                    pass
+                elif res != 1:
+                    raise SystemError('Thread killing failed.')
+            except (ValueError, AttributeError):
+                # Thread already terminated - ident is no longer valid
+                pass
 
     def set_result(self, result):
         self.result = result
