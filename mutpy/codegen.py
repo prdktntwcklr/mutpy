@@ -1,28 +1,29 @@
-# -*- coding: utf-8 -*-
-"""Wrapper module for astmonkey code generator."""
+"""Utility functions for code generation."""
 
-from astmonkey.visitors import to_source as astmonkey_to_source
+import ast
 import copy
 
+from astmonkey.visitors import to_source as astmonkey_to_source
 
-def to_source(node, indent_with=' ' * 4):
+
+def to_source(node: ast.AST) -> str:
+    """Convert an AST node back to source code."""
     node = copy.deepcopy(node)
-    return astmonkey_to_source(node=node, indent_with=indent_with)
+    return astmonkey_to_source(node=node)
 
 
-def add_line_numbers(source):
-    lines = source.split('\n')
-    n = 0
-    digits_number = len(str(len(lines)))
+def add_line_numbers(source: str) -> str:
+    """Add line numbers to the source code."""
+    lines = source.split("\n")
+    width = len(str(len(lines))) + 1
 
-    while n < len(lines):
-        lines[n] = '{:>{}}: {}'.format(n + 1, digits_number + 1, lines[n])
-        n += 1
-
-    return '\n'.join(lines)
+    return "\n".join(
+        "{:>{}}: {}".format(i, width, line) for i, line in enumerate(lines, start=1)
+    )
 
 
-def remove_extra_lines(source):
-    parts = source.split('\n')
+def remove_extra_lines(source: str) -> str:
+    """Remove extra lines from the source code."""
+    parts = source.split("\n")
     result = [part for part in parts if part.strip()]
-    return '\n'.join(result)
+    return "\n".join(result)

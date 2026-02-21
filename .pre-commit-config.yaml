@@ -11,7 +11,6 @@ repos:
       - id: debug-statements         # Catches forgotten 'breakpoint()' or 'import pdb'
       - id: end-of-file-fixer        # Ensures files end with a newline
       - id: no-commit-to-branch      # Prevents committing directly to master
-      - id: trailing-whitespace      # Trims unnecessary whitespace
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.15.2  # equal to ruff v0.15.2
