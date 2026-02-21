@@ -13,18 +13,15 @@ import types
 from _pyio import StringIO
 from collections import defaultdict
 
-if sys.version_info >= (3, 5):
-    from importlib._bootstrap_external import EXTENSION_SUFFIXES, ExtensionFileLoader
-else:
-    from importlib._bootstrap import ExtensionFileLoader, EXTENSION_SUFFIXES
+from importlib._bootstrap_external import EXTENSION_SUFFIXES, ExtensionFileLoader
 
 from multiprocessing import Process, Queue
 from queue import Empty
 from threading import Thread
 
 
-def create_module(ast_node, module_name='mutant', module_dict=None):
-    code = compile(ast_node, module_name, 'exec')
+def create_module(ast_node, module_name="mutant", module_dict=None):
+    code = compile(ast_node, module_name, "exec")
     module = types.ModuleType(module_name)
     module.__dict__.update(module_dict or {})
     exec(code, module.__dict__)
@@ -47,7 +44,7 @@ class ModulesLoaderException(Exception):
 class ModulesLoader:
     def __init__(self, names, path):
         self.names = names
-        self.path = path or '.'
+        self.path = path or "."
         self.ensure_in_path(self.path)
 
     def load(self, without_modules=None, exclude_c_extensions=True):
@@ -57,7 +54,9 @@ class ModulesLoader:
             results += self.load_single(name)
         for module, to_mutate in results:
             # yield only if module is not explicitly excluded and only source modules (.py) if demanded
-            if module not in without_modules and not (exclude_c_extensions and self._is_c_extension(module)):
+            if module not in without_modules and not (
+                exclude_c_extensions and self._is_c_extension(module)
+            ):
                 yield module, to_mutate
 
     def load_single(self, name):
@@ -89,14 +88,16 @@ class ModulesLoader:
     def is_package(name):
         try:
             module = importlib.import_module(name)
-            return hasattr(module, '__file__') and module.__file__.endswith('__init__.py')
+            return hasattr(module, "__file__") and module.__file__.endswith(
+                "__init__.py"
+            )
         except ImportError:
             return False
         finally:
             sys.path_importer_cache.clear()
 
     def load_file(self, name):
-        if name.endswith('.py'):
+        if name.endswith(".py"):
             dirname = os.path.dirname(name)
             self.ensure_in_path(dirname)
             module_name = self.get_filename_without_extension(name)
@@ -115,7 +116,9 @@ class ModulesLoader:
         result = []
         try:
             package = importlib.import_module(name)
-            for _, module_name, ispkg in pkgutil.walk_packages(package.__path__, package.__name__ + '.'):
+            for _, module_name, ispkg in pkgutil.walk_packages(
+                package.__path__, package.__name__ + "."
+            ):
                 if not ispkg:
                     try:
                         module = importlib.import_module(module_name)
@@ -127,7 +130,7 @@ class ModulesLoader:
         return result
 
     def load_directory(self, name):
-        if os.path.isfile(os.path.join(name, '__init__.py')):
+        if os.path.isfile(os.path.join(name, "__init__.py")):
             parent_dir = self._get_parent_directory(name)
             self.ensure_in_path(parent_dir)
             return self.load_package(os.path.basename(name))
@@ -140,10 +143,12 @@ class ModulesLoader:
             return result
 
     def load_module(self, name):
-        module, remainder_path, last_exception = self._split_by_module_and_remainder(name)
+        module, remainder_path, last_exception = self._split_by_module_and_remainder(
+            name
+        )
         if not self._module_has_member(module, remainder_path):
             raise ModulesLoaderException(name, last_exception)
-        return [(module, '.'.join(remainder_path) if remainder_path else None)]
+        return [(module, ".".join(remainder_path) if remainder_path else None)]
 
     @staticmethod
     def _get_parent_directory(name):
@@ -152,16 +157,17 @@ class ModulesLoader:
 
     @staticmethod
     def _split_by_module_and_remainder(name):
-        """Takes a path string and returns the contained module and the remaining path after it.
+        """
+        Takes a path string and returns the contained module and the remaining path after it.
 
         Example: "mymodule.mysubmodule.MyClass.my_func" -> mysubmodule, "MyClass.my_func"
         """
-        module_path = name.split('.')
+        module_path = name.split(".")
         member_path = []
         last_exception = None
         while True:
             try:
-                module = importlib.import_module('.'.join(module_path))
+                module = importlib.import_module(".".join(module_path))
                 break
             except ImportError as error:
                 member_path = [module_path.pop()] + member_path
@@ -182,7 +188,7 @@ class ModulesLoader:
 
     @staticmethod
     def _is_c_extension(module):
-        if isinstance(getattr(module, '__loader__', None), ExtensionFileLoader):
+        if isinstance(getattr(module, "__loader__", None), ExtensionFileLoader):
             return True
         module_filename = inspect.getfile(module)
         module_filetype = os.path.splitext(module_filename)[1]
@@ -220,7 +226,6 @@ class InjectImporter:
 
 
 class ModuleInjector:
-
     def __init__(self, source):
         self.source = source
 
@@ -238,20 +243,22 @@ class ModuleInjector:
             self.try_inject_other(imported_as, target)
 
     def try_inject_module(self, imported_as, module, target):
-        if self.safe_getattr(module, '__name__') == self.source.__name__:
+        if self.safe_getattr(module, "__name__") == self.source.__name__:
             self.source.__file__ = module.__file__
             target.__dict__[imported_as] = self.source
 
     def try_incject_class_or_function(self, imported_as, class_or_function, target):
-        if self.safe_getattr(class_or_function, '__name__') in self.source.__dict__:
-            target.__dict__[imported_as] = self.source.__dict__[self.safe_getattr(class_or_function, '__name__')]
+        if self.safe_getattr(class_or_function, "__name__") in self.source.__dict__:
+            target.__dict__[imported_as] = self.source.__dict__[
+                self.safe_getattr(class_or_function, "__name__")
+            ]
 
     def try_inject_other(self, imported_as, target):
         if imported_as in self.source.__dict__ and not self.is_restricted(imported_as):
             target.__dict__[imported_as] = self.source.__dict__[imported_as]
 
     def is_restricted(self, name):
-        return name in ['__builtins__', '__name__', '__doc__', '__file__']
+        return name in ["__builtins__", "__name__", "__doc__", "__file__"]
 
     def safe_getattr(self, obj, name):
         return object.__getattribute__(obj, name)
@@ -360,14 +367,16 @@ class MutationTestRunnerThread(MutationTestRunner, Thread):
     def terminate(self) -> None:
         """
         Terminate the thread by raising SystemExit asynchronously.
-        
+
         Handles race conditions gracefully where the thread may terminate between
         the is_alive() check and the actual termination attempt. Such timing issues
         are silently ignored to avoid spurious errors during test runner cleanup.
         """
         if self.is_alive():
             try:
-                res = ctypes.pythonapi.PyThreadState_SetAsyncExc(ctypes.c_long(self.ident), ctypes.py_object(SystemExit))
+                res = ctypes.pythonapi.PyThreadState_SetAsyncExc(
+                    ctypes.c_long(self.ident), ctypes.py_object(SystemExit)
+                )
                 if res == 0:
                     # Thread already terminated (race condition)
                     pass
@@ -376,7 +385,7 @@ class MutationTestRunnerThread(MutationTestRunner, Thread):
                     pass
                 else:  # res > 1
                     # More than one thread affected, this should not happen
-                    raise SystemError('Thread killing failed.')
+                    raise SystemError("Thread killing failed.")
             except (ValueError, AttributeError):
                 # Thread already terminated - ident is no longer valid
                 pass
@@ -392,7 +401,7 @@ class MutationTestRunnerThread(MutationTestRunner, Thread):
 
 
 def get_mutation_test_runner_class():
-    if os.name == 'nt':
+    if os.name == "nt":
         return MutationTestRunnerThread
     else:
         return MutationTestRunnerProcess
@@ -400,11 +409,11 @@ def get_mutation_test_runner_class():
 
 class ParentNodeTransformer(ast.NodeTransformer):
     def visit(self, node):
-        if getattr(node, 'parent', None):
+        if getattr(node, "parent", None):
             node = copy.copy(node)
-            if hasattr(node, 'lineno'):
+            if hasattr(node, "lineno"):
                 del node.lineno
-        node.parent = getattr(self, 'parent', None)
+        node.parent = getattr(self, "parent", None)
         node.children = []
         self.parent = node
         result_node = super().visit(node)
@@ -417,6 +426,7 @@ class ParentNodeTransformer(ast.NodeTransformer):
 def create_ast(code):
     return ParentNodeTransformer().visit(ast.parse(code))
 
+
 class NoGrandparentError(Exception):
     pass
 
@@ -426,23 +436,30 @@ def is_docstring(node) -> bool:
         grandparent_node = node.parent.parent
     except AttributeError:
         # programmer error: is_docstring only works on nodes that have grandparents
-        raise NoGrandparentError("The given node does not have a grandparent. " \
-        "Make sure to use utils.create_ast().")
+        raise NoGrandparentError(
+            "The given node does not have a grandparent. "
+            "Make sure to use utils.create_ast()."
+        )
 
     # DeprecationWarning: ast.Str is deprecated and will be removed in Python 3.14; use ast.Constant instead
-    return (isinstance(grandparent_node, (ast.FunctionDef, ast.ClassDef, ast.Module)) and
-            grandparent_node.body and
-            isinstance(grandparent_node.body[0], ast.Expr) and
-            isinstance(grandparent_node.body[0].value, (ast.Constant, ast.Str)) and
-            grandparent_node.body[0].value == node
-            )
+    return (
+        isinstance(grandparent_node, (ast.FunctionDef, ast.ClassDef, ast.Module))
+        and grandparent_node.body
+        and isinstance(grandparent_node.body[0], ast.Expr)
+        and isinstance(grandparent_node.body[0].value, (ast.Constant, ast.Str))
+        and grandparent_node.body[0].value == node
+    )
 
 
 def get_by_python_version(classes, python_version=sys.version_info):
     candidates = [cls for cls in classes if cls.__python_version__ <= python_version]
     if not candidates:
-        raise NotImplementedError('MutPy does not support Python {}.'.format(sys.version))
-    return max([candidate for candidate in candidates], key=lambda cls: cls.__python_version__)
+        raise NotImplementedError(
+            "MutPy does not support Python {}.".format(sys.version)
+        )
+    return max(
+        [candidate for candidate in candidates], key=lambda cls: cls.__python_version__
+    )
 
 
 def sort_operators(operators):
@@ -450,16 +467,16 @@ def sort_operators(operators):
 
 
 def f(text: str) -> str:
-    """Removes the first and last lines from the input text and strips common leading indentation 
-    from the remaining lines. If the input is empty or contains only newline characters, 
+    """Removes the first and last lines from the input text and strips common leading indentation
+    from the remaining lines. If the input is empty or contains only newline characters,
     returns an empty string."""
     if not text:
         return ""
 
-    lines = text.split('\n')[1:-1]
+    lines = text.split("\n")[1:-1]
 
     if not lines:
         return ""
 
-    indention = re.search(r'(\s*).*', lines[0]).group(1)
-    return '\n'.join(line[len(indention):] for line in lines)
+    indention = re.search(r"(\s*).*", lines[0]).group(1)
+    return "\n".join(line[len(indention) :] for line in lines)
