@@ -5,11 +5,6 @@ from mutpy import __version__ as version
 from mutpy import controller, views, operators, utils
 
 
-def main(argv):
-    parser = build_parser()
-    run_mutpy(parser)
-
-
 def build_parser():
     DEF_TIMEOUT_FACTOR = 5
     parser = argparse.ArgumentParser(description='Mutation testing tool for Python 3.x source code. ',
@@ -51,16 +46,21 @@ def build_parser():
     return parser
 
 
-def run_mutpy(parser):
-    cfg = parser.parse_args()
+def entry(argv=None):
+    """
+    Main entry point for the console script.
+    """
+    parser = build_parser()
+    args = argv[1:] if argv else None
+    cfg = parser.parse_args(args)
+
     if cfg.list_operators:
         list_operators()
     elif cfg.list_hom_strategies:
         list_hom_strategies()
     elif cfg.target and cfg.unit_test:
         mutation_controller = build_controller(cfg)
-        exit_code = mutation_controller.run()
-        sys.exit(exit_code)
+        sys.exit(mutation_controller.run())
     else:
         parser.print_usage()
 

@@ -43,6 +43,21 @@ $ cd mutpy/
 $ pip install -e .
 ```
 
+### Using the CLI
+
+After installation you can invoke the command-line tool as `mutpy` (this replaces the older `mut.py` script):
+
+```bash
+# show help
+mutpy -h
+
+# show version
+mutpy --version
+
+# run the example shown below
+mutpy --target calculator --unit-test test_calculator --show-mutants
+```
+
 ## Example
 
 Main code (`calculator.py`) - we will mutate it:
@@ -67,7 +82,7 @@ class CalculatorTest(TestCase):
 Now we can run MutPy in the same directory where we have our sources
 files:
 
-    $ mut.py --target calculator --unit-test test_calculator --show-mutants
+    $ mutpy --target calculator --unit-test test_calculator --show-mutants
 
 This command will produce the following output:
 

@@ -22,9 +22,9 @@ def test_approval(capsys, monkeypatch):
     monkeypatch.setattr(sys, "argv", custom_args)
 
     try:
-        commandline.main(sys.argv)
+        commandline.entry(sys.argv)
     except SystemExit:
-        # commandline.main() calls sys.exit() with the number of survivors
+        # commandline.entry() calls sys.exit() with the number of survivors
         pass
     
     output = capsys.readouterr().out
