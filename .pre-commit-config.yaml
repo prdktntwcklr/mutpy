@@ -1,0 +1,20 @@
+# See https://pre-commit.com for more information
+# See https://pre-commit.com/hooks.html for more hooks
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: check-added-large-files  # Prevents accidentally committing huge files
+      - id: check-merge-conflict     # Checks for forgotten merge conflict markers
+      - id: check-yaml               # Checks YAML syntax
+      - id: debug-statements         # Catches forgotten 'breakpoint()' or 'import pdb'
+      - id: end-of-file-fixer        # Ensures files end with a newline
+      - id: no-commit-to-branch      # Prevents committing directly to master
+      - id: trailing-whitespace      # Trims unnecessary whitespace
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.15.2
+    hooks:
+      - id: ruff-check
+      - id: ruff-format
