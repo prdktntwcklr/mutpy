@@ -16,8 +16,8 @@
     },
     // Ensures your local files are synced and you run as a non-root user if needed
     "remoteUser": "root",
-    "postCreateCommand": "pip install pre-commit && pre-commit install",
+    "postCreateCommand": "cp ${containerWorkspaceFolder}/.devcontainer/.bashrc /root/.bashrc",
     "containerEnv": {
         "EDITOR": "code --wait"
-    },
+    }
 }
