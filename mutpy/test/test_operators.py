@@ -1,5 +1,8 @@
 import ast
+import sys
 import unittest
+
+import pytest
 
 from mutpy import operators, codegen, coverage, utils
 
@@ -937,6 +940,10 @@ class HidingVariableDeletionTest(OperatorTestCase):
             with_exec=True,
         )
 
+    @pytest.mark.skipif(
+        sys.version_info[:2] <= (3, 10),
+        reason="Python 3.10 and below handle tuple unpacking differently",
+    )
     def test_delete_variable_if_one_hiding_in_three_targets(self):
         self.assert_mutation(
             utils.f("""
@@ -956,6 +963,10 @@ class HidingVariableDeletionTest(OperatorTestCase):
             with_exec=True,
         )
 
+    @pytest.mark.skipif(
+        sys.version_info[:2] <= (3, 10),
+        reason="Python 3.10 and below handle tuple unpacking differently",
+    )
     def test_delete_variable_if_two_hiding_in_two_targets(self):
         self.assert_mutation(
             utils.f("""
