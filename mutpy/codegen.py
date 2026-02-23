@@ -1,15 +1,11 @@
 """Utility functions for code generation."""
 
 import ast
-import copy
-
-from astmonkey.visitors import to_source as astmonkey_to_source
 
 
 def to_source(node: ast.AST) -> str:
     """Convert an AST node back to source code."""
-    node = copy.deepcopy(node)
-    return astmonkey_to_source(node=node)
+    return ast.unparse(node)
 
 
 def add_line_numbers(source: str) -> str:
