@@ -1,8 +1,8 @@
 # MutPy
 
-![Python Support](https://img.shields.io/badge/python-3.7--3.13-blue?logo=python&logoColor=white)
+![Python Support](https://img.shields.io/badge/python-3.9--3.13-blue?logo=python&logoColor=white)
 
-MutPy is a mutation testing tool for Python 3.7+ source code. MutPy
+MutPy is a mutation testing tool for Python 3.9+ source code. MutPy
 supports standard unittest module, generates YAML/HTML reports and has
 colorful output. It applies mutation on AST level. You could boost your
 mutation testing process with high order mutations (HOM) and code
@@ -26,7 +26,7 @@ From the [relevant article on Wikipedia](https://en.wikipedia.org/wiki/Mutation_
 
 ## Installation
 
-This is a fork of MutPy updated for Python 3.7+. Since this version is not
+This is a fork of MutPy updated for Python 3.9+. Since this version is not
 hosted on PyPI, you can install it directly from GitHub using pip:
 
 ```bash
