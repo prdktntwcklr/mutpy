@@ -88,7 +88,6 @@ class AbstractCoverageNodeTransformer(ast.NodeTransformer):
 class CoverageNodeTransformer(AbstractCoverageNodeTransformer):
     """
     Standard coverage transformer for Python 3.9+.
-    Replaces the old 3.2 and 3.3 specific variants.
     """
 
     __python_version__ = (3, 9)
