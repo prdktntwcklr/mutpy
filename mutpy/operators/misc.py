@@ -6,13 +6,14 @@ from mutpy.operators.base import MutationOperator, MutationResign
 
 # IMPORTANT: Capitalization of function names matters - do not change!
 
+
 class AssignmentOperatorReplacement(AbstractArithmeticOperatorReplacement):
     def should_mutate(self, node):
         return isinstance(node.parent, ast.AugAssign)
 
     @classmethod
     def name(cls):
-        return 'ASR'
+        return "ASR"
 
 
 class BreakContinueReplacement(MutationOperator):
@@ -24,8 +25,8 @@ class BreakContinueReplacement(MutationOperator):
 
 
 class ConstantReplacement(MutationOperator):
-    FIRST_CONST_STRING = 'mutpy'
-    SECOND_CONST_STRING = 'python'
+    FIRST_CONST_STRING = "mutpy"
+    SECOND_CONST_STRING = "python"
 
     def _string_helper(self, node) -> str:
         if utils.is_docstring(node):
@@ -35,7 +36,7 @@ class ConstantReplacement(MutationOperator):
             return self.FIRST_CONST_STRING
         else:
             return self.SECOND_CONST_STRING
-        
+
     def _string_helper_empty(self, node) -> str:
         if not node.value or utils.is_docstring(node):
             raise MutationResign()
@@ -44,7 +45,7 @@ class ConstantReplacement(MutationOperator):
 
     def mutate_Num(self, node):
         return ast.Num(n=node.n + 1)
-    
+
     def mutate_Constant_num(self, node):
         if isinstance(node.value, (int, float)) and not isinstance(node.value, bool):
             return ast.Constant(value=node.value + 1)
@@ -53,7 +54,7 @@ class ConstantReplacement(MutationOperator):
 
     def mutate_Str(self, node):
         return ast.Constant(value=self._string_helper(node))
-        
+
     def mutate_Constant_str(self, node):
         if isinstance(node.value, str):
             return ast.Constant(value=self._string_helper(node))
@@ -62,7 +63,7 @@ class ConstantReplacement(MutationOperator):
 
     def mutate_Str_empty(self, node):
         return ast.Constant(value=self._string_helper_empty(node))
-    
+
     def mutate_Constant_str_empty(self, node):
         if isinstance(node.value, str):
             return ast.Constant(value=self._string_helper_empty(node))
@@ -71,7 +72,7 @@ class ConstantReplacement(MutationOperator):
 
     @classmethod
     def name(cls):
-        return 'CRP'
+        return "CRP"
 
 
 class SliceIndexRemove(MutationOperator):
@@ -97,7 +98,7 @@ class SliceIndexRemove(MutationOperator):
 class SelfVariableDeletion(MutationOperator):
     def mutate_Attribute(self, node):
         try:
-            if node.value.id == 'self':
+            if node.value.id == "self":
                 return ast.Name(id=node.attr, ctx=ast.Load())
             else:
                 raise MutationResign()
@@ -119,4 +120,4 @@ class StatementDeletion(MutationOperator):
 
     @classmethod
     def name(cls):
-        return 'SDL'
+        return "SDL"
