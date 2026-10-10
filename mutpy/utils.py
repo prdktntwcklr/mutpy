@@ -441,12 +441,11 @@ def is_docstring(node) -> bool:
             "Make sure to use utils.create_ast()."
         )
 
-    # DeprecationWarning: ast.Str is deprecated and will be removed in Python 3.14; use ast.Constant instead
     return (
         isinstance(grandparent_node, (ast.FunctionDef, ast.ClassDef, ast.Module))
         and grandparent_node.body
         and isinstance(grandparent_node.body[0], ast.Expr)
-        and isinstance(grandparent_node.body[0].value, (ast.Constant, ast.Str))
+        and isinstance(grandparent_node.body[0].value, ast.Constant)
         and grandparent_node.body[0].value == node
     )
 

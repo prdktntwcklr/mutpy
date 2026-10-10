@@ -31,13 +31,13 @@ class ConstantReplacement(MutationOperator):
         if utils.is_docstring(node):
             raise MutationResign()
 
-        if node.s != self.FIRST_CONST_STRING:
+        if node.value != self.FIRST_CONST_STRING:
             return self.FIRST_CONST_STRING
         else:
             return self.SECOND_CONST_STRING
         
     def _string_helper_empty(self, node) -> str:
-        if not node.s or utils.is_docstring(node):
+        if not node.value or utils.is_docstring(node):
             raise MutationResign()
 
         return ""
@@ -52,7 +52,7 @@ class ConstantReplacement(MutationOperator):
             raise MutationResign()
 
     def mutate_Str(self, node):
-        return ast.Str(s=self._string_helper(node))
+        return ast.Constant(value=self._string_helper(node))
         
     def mutate_Constant_str(self, node):
         if isinstance(node.value, str):
@@ -61,11 +61,11 @@ class ConstantReplacement(MutationOperator):
             raise MutationResign()
 
     def mutate_Str_empty(self, node):
-        return ast.Str(s=self._string_helper_empty(node))
+        return ast.Constant(value=self._string_helper_empty(node))
     
     def mutate_Constant_str_empty(self, node):
         if isinstance(node.value, str):
-            return ast.Constant(s=self._string_helper_empty(node))
+            return ast.Constant(value=self._string_helper_empty(node))
         else:
             raise MutationResign()
 
