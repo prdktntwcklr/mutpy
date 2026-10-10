@@ -3,6 +3,7 @@ import copy
 import ctypes
 import importlib
 import inspect
+import multiprocessing
 import os
 import pkgutil
 import random
@@ -15,9 +16,14 @@ from collections import defaultdict
 
 from importlib._bootstrap_external import EXTENSION_SUFFIXES, ExtensionFileLoader
 
-from multiprocessing import Process, Queue
 from queue import Empty
 from threading import Thread
+
+_multiprocessing_context = (
+    multiprocessing.get_context("fork")
+    if sys.platform == "linux"
+    else multiprocessing.get_context()
+)
 
 
 def create_module(ast_node, module_name="mutant", module_dict=None):
@@ -342,10 +348,10 @@ class MutationTestRunner:
         self.set_result(result)
 
 
-class MutationTestRunnerProcess(MutationTestRunner, Process):
+class MutationTestRunnerProcess(MutationTestRunner, _multiprocessing_context.Process):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.queue = Queue()
+        self.queue = _multiprocessing_context.Queue()
 
     def get_result(self, live_time):
         try:
